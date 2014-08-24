@@ -1,0 +1,63 @@
+/*
+ * SLGrid.css 
+ */
+
+.padded 
+{
+    padding:3px;
+}
+
+.table-condensed tbody > tr > td {
+    padding: 3px 5px;
+}
+            
+.SLGrid a 
+{
+    text-decoration:none
+}
+        
+.fa-sort 
+{
+    font-size:14px;
+    color: #ddd;
+}
+            
+a.non-sortable {
+    cursor: default;
+}
+            
+/*
+td > span > a > i.fa {
+    display:none;
+}
+
+td > span:hover > a > i.fa {
+    display:inline;
+} 
+*/ 
+.anchorDisabled {
+    cursor: default;
+    color: gray;
+}
+
+
+.form-group {
+    margin-bottom: 5px;
+}
+
+
+.popover 
+{
+    max-width: 476px;
+}
+
+.form-control 
+{
+  hhheight: 24px; /* makes problem with  .input-group input */
+  padding: 3px 6px;
+}
+
+.btn 
+{
+  pppadding: 3px 6px;
+}

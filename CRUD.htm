@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+        <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+        <meta http-equiv="PRAGMA" content="NO-CACHE" />
+        <title>SL Grid</title>
+
+        
+        <!--
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+        -->
+
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+
+        <link href="Typeahead/Typeahead.css" rel="stylesheet" type="text/css" />
+
+        <link href="css/font-awesome.css" rel="stylesheet" type="text/css" />
+        <link href="css/SLGrid.css" rel="stylesheet" type="text/css" />
+
+        <style type="text/css">
+ 
+        </style>
+      
+        <!--  
+        <script src="Scripts/jquery-2.1.1.js" type="text/javascript"></script>
+        <script src="Scripts/bootstrap.js" type="text/javascript"></script>
+        <script src="Scripts/knockout-3.1.0.debug.js" type="text/javascript"></script>
+        <script src="Scripts/knockout.mapping-latest.debug.js" type="text/javascript"></script>
+        <script src="Scripts/knockout.validation.js" type="text/javascript"></script>
+        <script src="Scripts/jquery.validate.js" type="text/javascript"></script>
+        <script src="Scripts/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+        <script src="Typeahead/typeahead.bundle.js" type="text/javascript"></script>
+        -->
+        
+      
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout-validation/1.0.2/knockout.validation.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
+
+
+        <!--
+        <script src="SLGrid/SLBindingHandlers.js" type="text/javascript"></script>
+        <script src="SLGrid/SLGridViewModel.js" type="text/javascript"></script>
+        <script src="SLGrid/SLEntity.js" type="text/javascript"></script>
+        <script src="SLGrid/SLGrid.js" type="text/javascript"></script>
+        <script src="SLGrid/DBEntity.js" type="text/javascript"></script>
+        -->
+        <script src="SLGridALL.js" type="text/javascript"></script>
+
+        <!--
+        <script src="App/City/CityDB.js" type="text/javascript"></script>
+        <script src="App/City/City.js" type="text/javascript"></script>
+        <script src="App/City/DropDownCity.js" type="text/javascript"></script>
+        <script src="App/City/TypeaheadCity.js" type="text/javascript"></script>
+        <script src="App/City/CityList.js" type="text/javascript"></script>
+
+        <script src="App/Person/PersonDB.js" type="text/javascript"></script>
+        <script src="App/Person/Person.js" type="text/javascript"></script>
+        <script src="App/Person/PersonListFilter.js" type="text/javascript"></script>
+        <script src="App/Person/PersonList.js" type="text/javascript"></script>
+        -->
+
+        <script src="MyAppALL.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+            function Trace($obj) {
+                if (window.console && window.console.log)
+                    window.console.log($obj.toString());
+            }
+        </script>
+
+	</head>
+
+<body style="padding:30px 80px;">
+
+    <div class="well" style="width:80%">
+        <h2>Department</h2>
+        <div class="row">
+            <div class="col-lg-2">
+                <label for="deptId">Id:</label>
+            </div>
+            <div class="col-lg-10">
+                <span data-bind="text: deptId"></span>
+             </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2">
+                <label for="deptName">Name:</label>
+            </div>
+            <div class="col-lg-10">
+                <span data-bind="text: deptName"></span>
+             </div>
+        </div>
+    </div>
+
+    <div class="entity-list person-list" style="width:80%" data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }">
+    </div>
+
+    
+    <script type="text/javascript">
+
+        var globalViewModel = {
+            deptId : ko.observable('Department Abc'),
+            deptName : ko.observable('ABC dept'),
+            personListViewModel: PersonList.viewModel,
+            cityListViewModel: CityList.viewModel
+        }
+
+        $(document).ready(function () {
+            ko.applyBindings(globalViewModel);
+
+            $(document).on('click', function (e) {
+                if ($(e.target).closest(".popover").length == 0) { // click out of the popover 
+                    $(".popoverShown").popover("hide"); // hide all
+                }
+            });
+        });
+    </script>
+
+  
+
+
+     <script type="text/html" id="PersonList">
+        <div style="float:left">
+             <h4>Team</h4> 
+        </div>
+
+        <div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
+            <div class="input-group iiinput-group-sm">
+                <input id="filterPersonList" type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
+                <span class="input-group-addon" style="padding:2px 6px;"><i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;"></i></span>
+            </div>
+        </div>
+
+        <div style="clear:both"></div>
+
+        <div style="width:100%"> 
+            <div data-bind="SLGrid: $data" /> 
+            <div>
+                <div style="float:left">
+                    <button class="btn btn-primary" data-bind="click: addPerson, enable: canAddPerson">Add Person</button>
+                </div>
+                <div style="float:right;" data-bind="SLGridPager: $data">
+                </div>
+                <div style="float:right; margin-right:20px;">
+                    <span data-bind='text: nItems'></span> people<span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </script>
+
+</body>
+</html>

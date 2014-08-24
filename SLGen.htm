@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+        <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+        <meta http-equiv="PRAGMA" content="NO-CACHE" />
+        <title>SLGen</title>
+       
+        <!-- 
+        <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+        -->
+       
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.css" rel="stylesheet" type="text/css" />
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+
+
+        <link href="css/font-awesome.css" rel="stylesheet" type="text/css" />
+        <link href="css/SLGrid.css" rel="stylesheet" type="text/css" />
+
+        <style type="text/css">
+        </style>
+
+        <!--        
+        <script src="Scripts/jquery-2.1.1.js" type="text/javascript"></script>
+        <script src="Scripts/bootstrap.js" type="text/javascript"></script>
+        <script src="Scripts/knockout-3.1.0.debug.js" type="text/javascript"></script>
+        <script src="Scripts/knockout.mapping-latest.debug.js" type="text/javascript"></script>
+        <script src="Scripts/knockout.validation.js" type="text/javascript"></script>
+        -->
+        <!--<script src="Typeahead/typeahead.bundle.js" type="text/javascript"></script>-->
+        <!--<script src="Scripts/jquery.validate.js" type="text/javascript"></script>
+        <script src="Scripts/jquery.validate.unobtrusive.js" type="text/javascript"></script>-->
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/knockout-validation/1.0.2/knockout.validation.min.js"></script>
+        <!--<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>-->
+        
+        <!--
+        <script src="SLGrid/SLBindingHandlers.js" type="text/javascript"></script>
+        <script src="SLGrid/SLGridViewModel.js" type="text/javascript"></script>
+        <script src="SLGrid/SLEntity.js" type="text/javascript"></script>
+        <script src="SLGrid/SLGrid.js" type="text/javascript"></script>
+        <script src="SLGrid/DBEntity.js" type="text/javascript"></script>
+        -->
+        <script src="SLGridALL.js" type="text/javascript"></script>
+
+        <!--
+        <script src="Gen/Entity.js" type="text/javascript"></script>
+        <script src="Gen/DropDownDataType.js" type="text/javascript"></script>
+        <script src="Gen/DropDownPresentation.js" type="text/javascript"></script>
+        <script src="Gen/EntityField/EntityFieldDB.js" type="text/javascript"></script>
+        <script src="Gen/EntityField/EntityField.js" type="text/javascript"></script>
+        <script src="Gen/EntityField/EntityFieldList.js" type="text/javascript"></script>
+        -->
+        <script src="GenALL.js" type="text/javascript"></script>
+
+        <script type="text/javascript">
+
+            function Trace($obj) {
+                if (window.console && window.console.log)
+                    window.console.log($obj.toString());
+            }
+
+            String.prototype.getId = function () {
+                return this.replace(/[\' ]/g, "").replace(/[#\/\.\^\-]/g, "_");
+            }
+
+        </script>
+
+	</head>
+
+<body style="padding:30px 80px;">
+
+    <div class="well">
+        <h3>SL CRUD Generator</h3>
+        <div class="row">
+            <div class="col-md-2">
+                <label for="databaseName">Name:</label>
+            </div>
+            <div class="col-md-10">
+                <span data-bind="text: databaseName"></span>
+             </div>
+        </div>
+    </div>
+
+   
+    
+    <script type="text/javascript">
+   
+        person_Items = [
+            { FieldId: 1, Name: "PersonId",     DataType: "long",   DefaultValue: 0, PrimaryKey: true  },
+            { FieldId: 2, Name: "Name",         DataType: "string", DefaultValue: "" },
+            { FieldId: 3, Name: "IsOnTwitter",  DataType: "bit",    DefaultValue: false },
+            { FieldId: 4, Name: "TwitterName",  DataType: "string", DefaultValue: "" },
+            { FieldId: 5, Name: "CityId",       DataType: "long",   DefaultValue: 0, Presentation: "DropDown", ForeignKey: "City.CityId"} /* bsSelectCity */
+        ];
+
+        this.city_Items = [
+            { FieldId: 1, Name: "CityId",   DataType: "long",   DefaultValue: 0, PrimarKey: true },
+            { FieldId: 2, Name: "Name",     DataType: "string", DefaultValue: "" }
+        ];
+        
+     
+        function GlobalViewModel() {
+            var self = this;
+            self.databaseName = ko.observable('Students');
+  
+            self.entities = ko.observableArray([]);
+            self.tabs = ko.observableArray([]);
+
+            self.entitiesComputed = ko.computed(function () {
+                var tabsToRemove = [];
+                ko.utils.arrayForEach(self.tabs(), function (tab) {
+                    //if ($.grep(self.entities(), function (entity) { return entity.id == tab.entityId }).length == 0)
+                    if (!self.getEntity(tab.entityId))
+                        tabsToRemove.push(tab)
+                })
+                $.each(tabsToRemove, function (i, tab) {
+                    tab.clean();
+                    self.tabs.remove(tab);
+                });
+                //
+                //$.each(self.entities(), function (i, entity) {
+                ko.utils.arrayForEach(self.entities(), function (entity) {
+                    var it = ko.utils.arrayFirst(self.tabs(), function (tab) {
+                        return tab.entityId == entity.id;
+                    });
+                    if (!it)
+                        self.tabs.push(new EntityTab(self, entity));
+                });
+                return true
+            })
+
+            self.getMaxEntityId = function() {
+                var arr = self.entities().map(function (data, i) {
+                    return data.EntityId;
+                });
+                return Math.max.apply(null, arr);
+            }
+
+            self.addEntity = function () {
+                var it = ko.utils.arrayFirst(self.tabs(), function (tab) {
+                    return tab.entityText() == "New Entity"
+                });
+                if (it) {
+                    alert("First give the Name for NewEntity table");
+                }
+                var entity = new Entity({
+                    Name: "New Entity",
+                    Text: "New Entity",
+                    Items: []
+                });
+                self.entities.push(entity);
+                return entity.id;
+            }
+
+            self.AddActivateEntity = function () {
+                var entityId = self.addEntity();
+                self.activateTab(entityId);
+            }
+
+            self.getEntity = function (entityId) {
+                //return $.grep(self.entities(), function (entity) { return entity.id == entityId });
+                return ko.utils.arrayFirst(self.entities(), function (entity) {
+                    return entity.id == entityId;
+                })
+            }
+
+            self.getEntityTab = function (entityId) {
+                return ko.utils.arrayFirst(self.tabs(), function (tab) {
+                    return tab.entityId == entityId;
+                })
+            }
+
+            self.getActiveEntityTab = function () {
+                var $a = $("ul#entityTabs li.active a");
+                if ($a) {
+                    var entityId = $a.data('entityid');
+                    return self.getEntityTab(entityId);
+                }
+                return null;
+            }
+
+            self.activateFirstTab = function () {
+                if (self.tabs().length > 0)
+                    self.tabs()[0].Activate()
+            }
+
+            self.activateTab = function (entityId) {
+                var entityTab = self.getEntityTab(entityId);
+                self.deActivateTabsExcept(entityId);
+                entityTab.Activate();
+                //   tabLayout.resizeAll();
+            }
+
+
+            self.deActivateTabsExcept = function (entityId) {
+                ko.utils.arrayForEach(self.tabs(), function (tab) {
+                    if (tab.entityId != entityId)
+                        tab.deActivate();
+                })
+            }
+
+            self.removeTab = function (entityId, isActive) {
+                self.entities($.grep(self.entities(), function (entity) { return entity.id != entityId })); // removing by grep
+                if (isActive) {
+                    if (self.tabs().length > 0)
+                        self.tabs()[self.tabs().length - 1].Activate()
+                }
+            }
+
+        }
+
+        // --------------------------------------------
+        //  Entities
+        // --------------------------------------------
+        function OnEntitiesLoaded() {
+            //globalViewModel.activateFirstTab()
+            ReloadEntity();
+        }
+
+        function ReloadEntity() {
+            var entityTab = globalViewModel.getActiveEntityTab();
+            //entityTab.();
+        }
+
+    // ------------------------------------------------------
+    // ------------------------------------------------------
+
+    var globalViewModel = new GlobalViewModel(); // out of document.ready
+
+    EntityList = {
+        Subscribe : function (obj, callBack) {
+            callBack([
+                { EntityId: 1, Name: "Person", Text: "Person", Items: person_Items, IsActive: true },
+                { EntityId: 2, Name: "City", Text: "City", Items: city_Items }
+            ])
+        }
+    }
+
+
+
+    $(document).ready(function () {
+
+        EntityList.Subscribe({
+            filter: "",
+            page: 1,
+            pageSize: 1000,
+            orderBy: "Name",
+            asc: true
+        }, function (entitySet) {
+            ko.mapping.fromJS(entitySet, {
+                key: function (entity) {
+                    return ko.utils.unwrapObservable(entity.EntityId);
+                },
+                create: function (options) {
+                    return new Entity(options.data) //.Name, options.data.Text, isActive, options.data.Items);
+                }
+            }, globalViewModel.entities);
+            // loaded
+            setTimeout(function () { OnEntitiesLoaded(); }, 1000);
+        });
+
+        ko.applyBindings(globalViewModel);
+
+
+        $("#entityTabs").on('shown.bs.tab', "a[data-toggle='tab']", function (e) {
+            var entityId = $(e.target).data('entityid');
+            globalViewModel.activateTab(entityId);
+        })
+
+    });
+    
+
+    $(document).ready(function () {
+        $(document).on('click', function (e) {
+            if ($(e.target).closest(".popover").length == 0) { // click out of the popover 
+                $(".popoverShown").popover("hide"); // hide all
+            }
+        });
+    });
+
+</script>
+  
+
+
+    <div class="well"  ssstyle="border:1px solid #ddd; border-radius:4px 4px 0 0; padding:5px;">
+
+        <div style="float:right;margin-right:20px;">
+            <a href="#" onclick="globalViewModel.AddActivateEntity()" title="Refresh"><i class="fa fa-plus-square" style="font-size:22px;"></i></a>
+        </div>
+
+        <ul class="nav nav-tabs" id="entityTabs" data-bind='foreach: tabs'>
+            <li data-bind="css: { active : isActive }">
+                <a data-bind="attr:{href:'#pane_'+entityId, 'data-symbol':entityName, 'data-entityid':entityId }" data-toggle="tab">
+                    <b data-bind="text:entityText, visible:!editing()" style="cursor:pointer"></b>
+                    <input type="text" data-bind="visible:editing, value:entityText, hasFocus:editing"/>
+                    &nbsp;
+                    <i data-bind="click:editTab, click:setEditing" class="fa fa-edit" style="font-size:12px;"></i>
+                    <i data-bind="click:removeTab" class="fa fa-times" style="font-size:12px;"></i>
+                </a>
+            </li>
+        </ul>
+
+        <div id="entityTabsPanes" class="tab-content" style="border:1px solid #ddd; border-top-width:0px;" data-bind="foreach: tabs">
+            <div class="tab-pane" style="background-color:White" data-bind="attr : { id:'pane_'+entityId, 'data-symbol':entityName }, css: { active: isActive }">
+                <div class="padded">
+                    <div style="float:right;margin-right:0px;">
+                        <a href="#" onclick="ReloadEntity()" title="Refresh"><i class="fa fa-refresh"></i></a>
+                    </div>
+                    <div  class="tab-content" data-bind="attr : { id : entityId }, css: { active : isActive }">
+                        <div class="padded">
+                            <!--<div data-bind='visible:!loaded()' style='z-index:21;position:absolute;left:50%;top:20%;'>
+                                <i class='fa fa-spinner fa-spin fa-4' style='color:rgb(153, 153, 153);'></i>
+                            </div>-->
+                            <div class="entity-list" style="width:80%"  data-bind="template: {  name: 'EntityFieldList',  
+                                data : entityFieldListViewModel, 
+                                afterRender: entityFieldListViewModel.afterRender }">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+  <script type="text/html" id="EntityFieldList">
+        <div style="float:left">
+             <h4>Fields</h4> 
+        </div>
+
+        <div style="clear:both"></div>
+
+        <div style="width:100%"> 
+            <div data-bind="SLGrid: $data" /> 
+            <div>
+                <div style="float:left">
+                    <button class="btn btn-xs btn-primary" type="button" data-bind="click: addField, enable: canAddField">Add Field</button>
+                </div>
+                 <!--
+                <div style="float:right;" data-bind="SLGridPager: $data">
+                </div>
+                <div style="float:right; margin-right:20px;">
+                    <span data-bind='text: nItems'></span> <span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                </div>
+                -->
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </script>
+
+
+</body>
+</html>

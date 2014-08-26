@@ -5,10 +5,77 @@ Knockout CRUD with Bootstrap forms
 <br/>
 <br/>
 
-<a href="SLGen.htm"> Generator </a>
+<a href="SLGen.htm"> <i>SLGen</i> Generator </a>
 
+SLGen reads definitions of fields of table, and generate the classes (js files)
+Person.js => YourTable.js
+PersonList.js => YourTableList.js
+PersonDB.js => YourTableDB.js
+
+<b>Person</b>
+var Person = function () {
+    this.PersonId = ko.observable(data.PersonId || 0)
+    this.Name = ko.observable(data.Name || "")
+
+    this.IsOnTwitter = ko.observable(data.IsOnTwitter === undefined ? Person.prototype.IsOnTwitter.defaultValue : data.IsOnTwitter)
+    this.TwitterName = ko.observable(data.TwitterName || "")
+    ...
+}
+
+Person.prototype.PersonId = ko.observable(0)
+    .extend({
+        primaryKey: true,
+        headerText: "Id",
+        formLabel: "Id",
+        width: "100px",
+        defaultValue: function () { return this.getNextId() }
+    });
+
+Person.prototype.Name = ko.observable("")
+    .extend({
+        headerText: "Name",
+        formLabel: "Name",
+        presentation: "bsPopoverLink", // view form
+        width: "200px",
+        defaultValue: "",
+        required: true,
+        minLength: 2,
+        pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }
+    });
+    
+ Person.prototype.chosenCity = ko.observable()
+        .extend({
+            headerText: "City",
+            formLabel: "City",
+            width: "200px",
+            //presentation: "bsSelectCity"
+            presentation: "bsTypeaheadCity"
+        });
+...
+
+<b>PersonList</b>
+Keeps ViewModel for Person 
+Uses module pattern to overcomes the limitations of the object literal, offering privacy for variables and functions while exposing a public API.
+
+var PersonList = (function (DB) {
+  ...
+  GridViewModel.prototype = new SLGridViewModel();
+  var gridViewModel = new GridViewModel();
+  return {
+        viewModel: gridViewModel
+  }
+}
+
+<b>PersonDB</b>
+Work with Database (storage)
+Can be in memory adapter, ajax based adapter, LightStreamer pusher ...
+function PersonDB() {
+  this.UpdatePerson = function (data) {...}
+  this.StorePerson = function (data) {...}
+  this.DeletePerson = function (entity) {...}
+}
 <br/>
 <br/>
 <br/>
 
-<a href="CRUD.htm"> Pattern </a>
+<a href="CRUD.htm"> Template (Pattern) </a>

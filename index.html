@@ -15,7 +15,17 @@ PersonList.js => YourTableList.js<br/>
 PersonDB.js => YourTableDB.js<br/>
 <br/>
 
-<b>Person</b><br/>
+<table>
+<th>
+    <td><b>Person</b>
+    </td>
+    <td><b>PersonList</b>
+    </td>
+    <td><b>PersonDB</b>
+    </td>
+    </th>
+<tr>
+    <td>
 var Person = function () {<br/>
     this.PersonId = ko.observable(data.PersonId || 0)<br/>
     this.Name = ko.observable(data.Name || "")<br/>
@@ -23,9 +33,8 @@ var Person = function () {<br/>
     this.IsOnTwitter = ko.observable(data.IsOnTwitter === undefined ? Person.prototype.IsOnTwitter.defaultValue : data.IsOnTwitter)<br/>
     this.TwitterName = ko.observable(data.TwitterName || "")<br/>
     ...<br/>
-}<br/>
-<br/><br/>
-
+}
+<br/><br/>    
 Person.prototype.PersonId = ko.observable(0)<br/>
     .extend({<br/>
         primaryKey: true,<br/>
@@ -35,18 +44,7 @@ Person.prototype.PersonId = ko.observable(0)<br/>
         defaultValue: function () { return this.getNextId() }<br/>
     });<br/>
 <br/><br/>
-Person.prototype.Name = ko.observable("")<br/>
-    .extend({<br/>
-        headerText: "Name",<br/>
-        formLabel: "Name",<br/>
-        presentation: "bsPopoverLink", // view form<br/>
-        width: "200px",<br/>
-        defaultValue: "",<br/>
-        required: true,<br/>
-        minLength: 2,<br/>
-        pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }<br/>
-    });<br/>
-    <br/><br/>
+...
  Person.prototype.chosenCity = ko.observable()<br/>
         .extend({<br/>
             headerText: "City",<br/>
@@ -56,8 +54,9 @@ Person.prototype.Name = ko.observable("")<br/>
             presentation: "bsTypeaheadCity"<br/>
         });<br/>
 ...<br/>
-<br/><br/>
-<b>PersonList</b><br/>
+    
+    </td>
+    <td>
 Keeps ViewModel for Person <br/>
 Uses module pattern to overcomes the limitations of the object literal, offering privacy for variables and functions while exposing a public API.<br/>
 <br/>
@@ -68,18 +67,20 @@ var PersonList = (function (DB) {<br/>
   return {<br/>
         viewModel: gridViewModel<br/>
   }<br/>
-}<br/>
-<br/>
-<b>PersonDB</b><br/>
+}<br/>    
+    </td>
+    <td>
 Work with Database (storage)<br/>
 Can be in memory adapter, ajax based adapter, LightStreamer pusher ...<br/>
 function PersonDB() {<br/>
   this.UpdatePerson = function (data) {...}<br/>
   this.StorePerson = function (data) {...}<br/>
   this.DeletePerson = function (entity) {...}<br/>
-}<br/>
-<br/>
-<br/>
-<br/>
+}    
+    </td>
+    </tr></table>
+
+
+<br/><br/>
 
 <a href="CRUD.htm"> Template (Pattern) </a>

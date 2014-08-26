@@ -27,7 +27,6 @@ var <b>Person</b> = function () {<br/>
     this.PersonId = ko.observable(data.PersonId || 0)<br/>
     this.Name = ko.observable(data.Name || "")<br/>
 <br/>
-    this.IsOnTwitter = ko.observable(data.IsOnTwitter === undefined ? Person.prototype.IsOnTwitter.defaultValue : data.IsOnTwitter)<br/>
     this.TwitterName = ko.observable(data.TwitterName || "")<br/>
     ...<br/>
 }

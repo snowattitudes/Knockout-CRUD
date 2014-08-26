@@ -15,7 +15,7 @@ PersonList.js => YourTableList.js<br/>
 PersonDB.js => YourTableDB.js<br/>
 <br/>
 
-<table border=1 cellpadding=3>
+<table border=1 cellpadding=5 cellspacing=0>
 <tr>
     <th><b>Person</b></th>
     <th><b>PersonList</b></th>
@@ -23,7 +23,7 @@ PersonDB.js => YourTableDB.js<br/>
 </tr>
 <tr>
     <td>
-var Person = function () {<br/>
+var <b>Person</b> = function () {<br/>
     this.PersonId = ko.observable(data.PersonId || 0)<br/>
     this.Name = ko.observable(data.Name || "")<br/>
 <br/><br/>
@@ -40,8 +40,7 @@ Person.prototype.PersonId = ko.observable(0)<br/>
         width: "100px",<br/>
         defaultValue: function () { return this.getNextId() }<br/>
     });<br/>
-<br/><br/>
-...<br/>
+...<br/><br/>
  Person.prototype.chosenCity = ko.observable()<br/>
         .extend({<br/>
             headerText: "City",<br/>
@@ -57,7 +56,7 @@ Person.prototype.PersonId = ko.observable(0)<br/>
 Keeps ViewModel for Person <br/>
 Uses module pattern to overcomes the limitations of the object literal, offering privacy for variables and functions while exposing a public API.<br/>
 <br/>
-var PersonList = (function (DB) {<br/>
+var <b>PersonList</b> = (function (DB) {<br/>
   ...<br/>
   GridViewModel.prototype = new SLGridViewModel();<br/>
   var gridViewModel = new GridViewModel();<br/>
@@ -70,7 +69,7 @@ var PersonList = (function (DB) {<br/>
     <td>
 Work with Database (storage)<br/>
 Can be in memory adapter, ajax based adapter, LightStreamer pusher ...<br/>
-function PersonDB() {<br/>
+function <b>PersonDB()</b> {<br/>
   this.UpdatePerson = function (data) {...}<br/>
   this.StorePerson = function (data) {...}<br/>
   this.DeletePerson = function (entity) {...}<br/>

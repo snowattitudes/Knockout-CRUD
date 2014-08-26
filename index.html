@@ -26,7 +26,7 @@ PersonDB.js => YourTableDB.js<br/>
 var <b>Person</b> = function () {<br/>
     this.PersonId = ko.observable(data.PersonId || 0)<br/>
     this.Name = ko.observable(data.Name || "")<br/>
-<br/><br/>
+<br/>
     this.IsOnTwitter = ko.observable(data.IsOnTwitter === undefined ? Person.prototype.IsOnTwitter.defaultValue : data.IsOnTwitter)<br/>
     this.TwitterName = ko.observable(data.TwitterName || "")<br/>
     ...<br/>
@@ -68,7 +68,9 @@ var <b>PersonList</b> = (function (DB) {<br/>
     
     <td>
 Work with Database (storage)<br/>
-Can be in memory adapter, ajax based adapter, LightStreamer pusher ...<br/>
+Can be in memory adapter, ajax based adapter, LightStreamer pusher ...
+<br/>
+<br/>
 function <b>PersonDB()</b> {<br/>
   this.UpdatePerson = function (data) {...}<br/>
   this.StorePerson = function (data) {...}<br/>

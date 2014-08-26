@@ -45,8 +45,8 @@ Person.prototype.PersonId = ko.observable(0)<br/>
             &nbsp;&nbsp;headerText: "City",<br/>
             &nbsp;&nbsp;formLabel: "City",<br/>
             &nbsp;&nbsp;width: "200px",<br/>
-            &nbsp;&nbsp;//presentation: "bsSelectCity"<br/>
-            &nbsp;&nbsp;presentation: "bsTypeaheadCity"<br/>
+            &nbsp;&nbsp;//presentation: "bsDropDownCity"<br/>
+            &nbsp;&nbsp;presentation: <b style='color:maroon'>"bsTypeaheadCity"</b><br/>
         &nbsp;});<br/>
 ...<br/>
     
@@ -77,7 +77,10 @@ function <b>PersonDB()</b> {<br/>
 }    
     </td>
     </tr></table>
-
+<br/><br/>
+We use widgets created by Knockout Custom Bindings.<br/>
+Each filed can be bound in table row, or in Bootstrap form (popover).<br/>
+See above: bsDropDownCity or bsTypeheadCity.<br/>
 
 <br/><br/><br/>
 <b><i>Example of maintenance of Person table, using generated files for Person entity</i></b> <br/>

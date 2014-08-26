@@ -15,14 +15,11 @@ PersonList.js => YourTableList.js<br/>
 PersonDB.js => YourTableDB.js<br/>
 <br/>
 
-<table border=1>
+<table border=1 cellpadding=3>
 <tr>
-    <th><b>Person</b>
-    </th>
-    <th><b>PersonList</b>
-    </th>
-    <th><b>PersonDB</b>
-    </th>
+    <th><b>Person</b></th>
+    <th><b>PersonList</b></th>
+    <th><b>PersonDB</b></th>
 </tr>
 <tr>
     <td>
@@ -44,7 +41,7 @@ Person.prototype.PersonId = ko.observable(0)<br/>
         defaultValue: function () { return this.getNextId() }<br/>
     });<br/>
 <br/><br/>
-...
+...<br/>
  Person.prototype.chosenCity = ko.observable()<br/>
         .extend({<br/>
             headerText: "City",<br/>
@@ -67,8 +64,9 @@ var PersonList = (function (DB) {<br/>
   return {<br/>
         viewModel: gridViewModel<br/>
   }<br/>
-}<br/>    
+}    
     </td>
+    
     <td>
 Work with Database (storage)<br/>
 Can be in memory adapter, ajax based adapter, LightStreamer pusher ...<br/>

@@ -24,30 +24,30 @@ PersonDB.js => YourTableDB.js<br/>
 <tr>
     <td>
 var <b>Person</b> = function () {<br/>
-    this.PersonId = ko.observable(data.PersonId || 0)<br/>
-    this.Name = ko.observable(data.Name || "")<br/>
+    &nbsp;this.PersonId = ko.observable(data.PersonId || 0)<br/>
+    &nbsp;this.Name = ko.observable(data.Name || "")<br/>
 <br/>
-    this.TwitterName = ko.observable(data.TwitterName || "")<br/>
+    &nbsp;this.TwitterName = ko.observable(data.TwitterName || "")<br/>
     ...<br/>
 }
 <br/><br/>    
 Person.prototype.PersonId = ko.observable(0)<br/>
-    .extend({<br/>
-        primaryKey: true,<br/>
-        headerText: "Id",<br/>
-        formLabel: "Id",<br/>
-        width: "100px",<br/>
-        defaultValue: function () { return this.getNextId() }<br/>
-    });<br/>
+    &nbsp;.extend({<br/>
+        &nbsp;&nbsp;primaryKey: true,<br/>
+        &nbsp;&nbsp;headerText: "Id",<br/>
+        &nbsp;&nbsp;formLabel: "Id",<br/>
+        &nbsp;&nbsp;width: "100px",<br/>
+        &nbsp;&nbsp;defaultValue: function () { return this.getNextId() }<br/>
+    &nbsp;});<br/>
 ...<br/><br/>
  Person.prototype.chosenCity = ko.observable()<br/>
-        .extend({<br/>
-            headerText: "City",<br/>
-            formLabel: "City",<br/>
-            width: "200px",<br/>
-            //presentation: "bsSelectCity"<br/>
-            presentation: "bsTypeaheadCity"<br/>
-        });<br/>
+        &nbsp;.extend({<br/>
+            &nbsp;&nbsp;headerText: "City",<br/>
+            &nbsp;&nbsp;formLabel: "City",<br/>
+            &nbsp;&nbsp;width: "200px",<br/>
+            &nbsp;&nbsp;//presentation: "bsSelectCity"<br/>
+            &nbsp;&nbsp;presentation: "bsTypeaheadCity"<br/>
+        &nbsp;});<br/>
 ...<br/>
     
     </td>
@@ -57,11 +57,11 @@ Uses module pattern to overcomes the limitations of the object literal, offering
 <br/>
 var <b>PersonList</b> = (function (DB) {<br/>
   ...<br/>
-  GridViewModel.prototype = new SLGridViewModel();<br/>
-  var gridViewModel = new GridViewModel();<br/>
-  return {<br/>
-        viewModel: gridViewModel<br/>
-  }<br/>
+  &nbsp;GridViewModel.prototype = new SLGridViewModel();<br/>
+  &nbsp;var gridViewModel = new GridViewModel();<br/>
+  &nbsp;return {<br/>
+        &nbsp;&nbsp;viewModel: gridViewModel<br/>
+  &nbsp;}<br/>
 }    
     </td>
     
@@ -71,9 +71,9 @@ Can be in memory adapter, ajax based adapter, LightStreamer pusher ...
 <br/>
 <br/>
 function <b>PersonDB()</b> {<br/>
-  this.UpdatePerson = function (data) {...}<br/>
-  this.StorePerson = function (data) {...}<br/>
-  this.DeletePerson = function (entity) {...}<br/>
+  &nbsp;this.UpdatePerson = function (data) {...}<br/>
+  &nbsp;this.StorePerson = function (data) {...}<br/>
+  &nbsp;this.DeletePerson = function (entity) {...}<br/>
 }    
     </td>
     </tr></table>

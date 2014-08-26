@@ -13,7 +13,7 @@ SLGen reads definitions of fields of table, and generate the classes (js files)
 Person.js => YourTable.js<br/>
 PersonList.js => YourTableList.js<br/>
 PersonDB.js => YourTableDB.js<br/>
-<br/><br/>
+<br/>
 
 <b>Person</b><br/>
 var Person = function () {<br/>
@@ -60,7 +60,7 @@ Person.prototype.Name = ko.observable("")<br/>
 <b>PersonList</b><br/>
 Keeps ViewModel for Person <br/>
 Uses module pattern to overcomes the limitations of the object literal, offering privacy for variables and functions while exposing a public API.<br/>
-<br/><br/>
+<br/>
 var PersonList = (function (DB) {<br/>
   ...<br/>
   GridViewModel.prototype = new SLGridViewModel();<br/>
@@ -69,7 +69,7 @@ var PersonList = (function (DB) {<br/>
         viewModel: gridViewModel<br/>
   }<br/>
 }<br/>
-
+<br/>
 <b>PersonDB</b><br/>
 Work with Database (storage)<br/>
 Can be in memory adapter, ajax based adapter, LightStreamer pusher ...<br/>

@@ -5,6 +5,7 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/highlight.min.js"></script>
 
 $(document).ready(function() {
+  //hljs.configure({language: 'JavaScript'});
   $('pre code').each(function(i, block) {
     hljs.highlightBlock(block);
   });
@@ -35,7 +36,7 @@ SLGen reads definitions of fields of table, and generate the classes (js files)
 <tr>
     <td>
     
-<pre><code class="JavaScript">    
+<pre><code class="lang-JavaScript">    
 var <b>Person</b> = function () {
     this.PersonId = ko.observable(data.PersonId || 0)
     this.Name = ko.observable(data.Name || "")

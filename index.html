@@ -1,4 +1,15 @@
 
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/default.min.css">
+<script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/highlight.min.js"></script>
+
+$(document).ready(function() {
+  $('pre code').each(function(i, block) {
+    hljs.highlightBlock(block);
+  });
+});
+
 Knockout CRUD with Bootstrap forms
 
 <br/>
@@ -23,6 +34,8 @@ SLGen reads definitions of fields of table, and generate the classes (js files)
 </tr>
 <tr>
     <td>
+    
+<pre><code class="javascript">    
 var <b>Person</b> = function () {<br/>
     &nbsp;this.PersonId = ko.observable(data.PersonId || 0)<br/>
     &nbsp;this.Name = ko.observable(data.Name || "")<br/>
@@ -47,7 +60,9 @@ Person.prototype.PersonId = ko.observable(0)<br/>
             &nbsp;&nbsp;width: "200px",<br/>
             &nbsp;&nbsp;//presentation: "bsDropDownCity"<br/>
             &nbsp;&nbsp;presentation: <b style='color:maroon'>"bsTypeaheadCity"</b><br/>
-        &nbsp;});<br/>
+        &nbsp;});
+</code></pre>        
+        <br/>
 ...<br/>
     
     </td>

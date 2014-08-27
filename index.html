@@ -142,33 +142,33 @@ It is rasier to change this template, than learn a new API for definition of lay
 
 <pre><code class="html"> 
 &lt;script type="text/html" id="PersonList"&gt;
-        &lt;div style="float:left">
-             &lt;h4>Team&lt;/h4> 
-        &lt;/div>
+        &lt;div style="float:left"&gt
+             &lt;h4&gtTeam&lt;/h4&gt 
+        &lt;/div&gt
 
-        &lt;div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
-            &lt;div class="input-group iiinput-group-sm">
-                &lt;input id="filterPersonList" type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
-                &lt;span class="input-group-addon" style="padding:2px 6px;">&lt;i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;">&lt;/i>&lt;/span>
-            &lt;/div>
-        &lt;/div>
+        &lt;div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;"&gt
+            &lt;div class="input-group iiinput-group-sm"&gt
+                &lt;input id="filterPersonList" type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" /&gt
+                &lt;span class="input-group-addon" style="padding:2px 6px;"&gt&lt;i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;"&gt&lt;/i&gt&lt;/span&gt
+            &lt;/div&gt
+        &lt;/div&gt
 
-        &lt;div style="clear:both">&lt;/div>
+        &lt;div style="clear:both"&gt&lt;/div&gt
 
-        &lt;div style="width:100%"> 
-            &lt;div data-bind="SLGrid: $data" /> 
-            &lt;div>
-                &lt;div style="float:left">
-                    &lt;button class="btn btn-primary" data-bind="click: addPerson, enable: canAddPerson">Add Person&lt;/button>
-                &lt;/div>
-                &lt;div style="float:right;" data-bind="SLGridPager: $data">
-                &lt;/div>
-                &lt;div style="float:right; margin-right:20px;">
-                    &lt;span data-bind='text: nItems'>&lt;/span> people&lt;span data-bind="visible:maxPageIndex()>=itemsOnPager()">, &lt;span data-bind='text:maxPageIndex()+1'>&lt;/span> pages&lt;/span>
-                &lt;/div>
-                &lt;div style="clear:both">&lt;/div>
-            &lt;/div>
-        &lt;/div>
+        &lt;div style="width:100%"&gt 
+            &lt;div data-bind="SLGrid: $data" /&gt 
+            &lt;div&gt
+                &lt;div style="float:left"&gt
+                    &lt;button class="btn btn-primary" data-bind="click: addPerson, enable: canAddPerson"&gtAdd Person&lt;/button&gt
+                &lt;/div&gt
+                &lt;div style="float:right;" data-bind="SLGridPager: $data"&gt
+                &lt;/div&gt
+                &lt;div style="float:right; margin-right:20px;"&gt
+                    &lt;span data-bind='text: nItems'&gt&lt;/span&gt people&lt;span data-bind="visible:maxPageIndex()&gt=itemsOnPager()"&gt, &lt;span data-bind='text:maxPageIndex()+1'&gt&lt;/span&gt pages&lt;/span&gt
+                &lt;/div&gt
+                &lt;div style="clear:both"&gt&lt;/div&gt
+            &lt;/div&gt
+        &lt;/div&gt
     &lt;/script&gt;
 </code></pre>  
 
@@ -178,8 +178,8 @@ It is rasier to change this template, than learn a new API for definition of lay
 Finally bind PersonTemplate to PersonList.viewModel
 
 <pre><code class="html"> 
-    &lt;div class="entity-list person-list" style="width:80%" data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }">
-    &lt;/div>
+    &lt;div class="entity-list person-list" style="width:80%" data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }"&gt
+    &lt;/div&gt
 </code></pre>  
 
 </td></tr>

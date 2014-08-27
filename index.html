@@ -142,7 +142,7 @@ ViewModels of all the entities are being used in global VieewModel like this: <b
 <tr><td colspan='3'>
 Here is the example of PersonList template.
 It is easier to change this template, rather than lear a new API for that.<br />
-<pre><code class="html"> 
+<pre><code class="languge-html"> 
 <script type="text/html" id="PersonList">
         <div style="float:left">
              <h4>Team</h4> 
@@ -177,7 +177,7 @@ It is easier to change this template, rather than lear a new API for that.<br />
 
 <tr><td colspan='3'>
 Finally bind PersonTemplate to PersonList.viewModel
-<pre><code class="html"> 
+<pre><code class="language-html"> 
     <div class="entity-list person-list" style="width:80%" data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }">
     </div>
 </code></pre>  

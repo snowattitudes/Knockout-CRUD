@@ -39,7 +39,7 @@ SLGen reads definitions of fields of table, and generate the classes (js files)
 var <b>Person</b> = function () {
     this.PersonId = ko.observable(data.PersonId || 0)
     this.Name = ko.observable(data.Name || "")
-<br/>
+
     this.TwitterName = ko.observable(data.TwitterName || "")
     ...
 }
@@ -53,7 +53,8 @@ Person.prototype.PersonId = ko.observable(0)
         defaultValue: function () { return this.getNextId() }
     });
 ...
- Person.prototype.chosenCity = ko.observable()
+
+Person.prototype.chosenCity = ko.observable()
         .extend({
             headerText: "City",
             formLabel: "City",
@@ -61,23 +62,25 @@ Person.prototype.PersonId = ko.observable(0)
             //presentation: "bsDropDownCity"
             presentation: <b style='color:maroon'>"bsTypeaheadCity"</b>
         });
+...
 </code></pre>        
         
-...<br/>
     
     </td>
     <td>
 Keeps ViewModel for Person <br/>
 Uses module pattern to overcomes the limitations of the object literal, offering privacy for variables and functions while exposing a public API.<br/>
 <br/>
-var <b>PersonList</b> = (function (DB) {<br/>
-  ...<br/>
-  GridViewModel.prototype = new SLGridViewModel();<br/>
-  var gridViewModel = new GridViewModel();<br/>
-  return {<br/>
-        viewModel: gridViewModel<br/>
-  }<br/>
+<pre><code class="JavaScript"> 
+var <b>PersonList</b> = (function (DB) {
+  ...
+  GridViewModel.prototype = new SLGridViewModel();
+  var gridViewModel = new GridViewModel();
+  return {
+        viewModel: gridViewModel
+  }
 }    
+</code></pre>     
     </td>
     
     <td>
@@ -85,11 +88,13 @@ Work with Database (storage)<br/>
 Can be in memory adapter, ajax based adapter, LightStreamer pusher ...
 <br/>
 <br/>
-function <b>PersonDB()</b> {<br/>
-  this.UpdatePerson = function (data) {...}<br/>
-  this.StorePerson = function (data) {...}<br/>
-  this.DeletePerson = function (entity) {...}<br/>
+<pre><code class="JavaScript"> 
+function <b>PersonDB()</b> {
+  this.UpdatePerson = function (data) {...}
+  this.StorePerson = function (data) {...}
+  this.DeletePerson = function (entity) {...}
 }    
+</code></pre>     
     </td>
     </tr></table>
 <br/><br/>

@@ -73,8 +73,15 @@ Person.prototype.chosenCity = ko.observable()
 Keeps ViewModel for Person <br/>
 Uses module pattern to overcomes the limitations of the object literal, offering privacy for variables and functions while exposing a public API.<br/>
 <br/>
-<pre><code class="javascript"> 
+<pre><code class="lang-javascript"> 
 var <b>PersonList</b> = (function (DB) {
+  var StorePerson  = function (data) { db.StorePerson(data) }
+  var UpdatePerson = function (data) { db.UpdatePerson(data) }
+  var DeletePerson = function (data) { db.DeletePerson(data) }
+
+  function GridViewModel() {
+  }
+
   ...
   GridViewModel.prototype = new SLGridViewModel();
   var gridViewModel = new GridViewModel();
@@ -90,7 +97,7 @@ Work with Database (storage)<br/>
 Can be in memory adapter, ajax based adapter, LightStreamer pusher ...
 <br/>
 <br/>
-<pre><code class="javascript"> 
+<pre><code class="lang-javascript"> 
 function <b>PersonDB()</b> {
   this.UpdatePerson = function (data) {...}
   this.StorePerson = function (data) {...}

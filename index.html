@@ -17,10 +17,10 @@ Knockout CRUD with Bootstrap forms
 <br/>
 
 <a href="SLGen.htm"> <i>SLGen</i> Generator </a>
-<br/>
+<br/><br/>
 
 SLGen reads definitions of fields of table, and generate the classes (js files)
-<br/>
+<br/><br/>
 &nbsp;Person.js => YourEntity.js<br/>
 &nbsp;PersonList.js => YourEntityList.js<br/>
 &nbsp;PersonDB.js => YourEntityDB.js<br/>
@@ -35,34 +35,34 @@ SLGen reads definitions of fields of table, and generate the classes (js files)
 <tr>
     <td>
     
-<pre><code class="javascript">    
-var <b>Person</b> = function () {<br/>
-    &nbsp;this.PersonId = ko.observable(data.PersonId || 0)<br/>
-    &nbsp;this.Name = ko.observable(data.Name || "")<br/>
+<pre><code class="JavaScript">    
+var <b>Person</b> = function () {
+    this.PersonId = ko.observable(data.PersonId || 0)
+    this.Name = ko.observable(data.Name || "")
 <br/>
-    &nbsp;this.TwitterName = ko.observable(data.TwitterName || "")<br/>
-    ...<br/>
+    this.TwitterName = ko.observable(data.TwitterName || "")
+    ...
 }
-<br/><br/>    
-Person.prototype.PersonId = ko.observable(0)<br/>
-    &nbsp;.extend({<br/>
-        &nbsp;&nbsp;primaryKey: true,<br/>
-        &nbsp;&nbsp;headerText: "Id",<br/>
-        &nbsp;&nbsp;formLabel: "Id",<br/>
-        &nbsp;&nbsp;width: "100px",<br/>
-        &nbsp;&nbsp;defaultValue: function () { return this.getNextId() }<br/>
-    &nbsp;});<br/>
-...<br/><br/>
- Person.prototype.chosenCity = ko.observable()<br/>
-        &nbsp;.extend({<br/>
-            &nbsp;&nbsp;headerText: "City",<br/>
-            &nbsp;&nbsp;formLabel: "City",<br/>
-            &nbsp;&nbsp;width: "200px",<br/>
-            &nbsp;&nbsp;//presentation: "bsDropDownCity"<br/>
-            &nbsp;&nbsp;presentation: <b style='color:maroon'>"bsTypeaheadCity"</b><br/>
-        &nbsp;});
+
+Person.prototype.PersonId = ko.observable(0)
+    .extend({
+        primaryKey: true,
+        headerText: "Id",
+        formLabel: "Id",
+        width: "100px",
+        defaultValue: function () { return this.getNextId() }
+    });
+...
+ Person.prototype.chosenCity = ko.observable()
+        .extend({
+            headerText: "City",
+            formLabel: "City",
+            width: "200px",
+            //presentation: "bsDropDownCity"
+            presentation: <b style='color:maroon'>"bsTypeaheadCity"</b>
+        });
 </code></pre>        
-        <br/>
+        
 ...<br/>
     
     </td>
@@ -72,11 +72,11 @@ Uses module pattern to overcomes the limitations of the object literal, offering
 <br/>
 var <b>PersonList</b> = (function (DB) {<br/>
   ...<br/>
-  &nbsp;GridViewModel.prototype = new SLGridViewModel();<br/>
-  &nbsp;var gridViewModel = new GridViewModel();<br/>
-  &nbsp;return {<br/>
-        &nbsp;&nbsp;viewModel: gridViewModel<br/>
-  &nbsp;}<br/>
+  GridViewModel.prototype = new SLGridViewModel();<br/>
+  var gridViewModel = new GridViewModel();<br/>
+  return {<br/>
+        viewModel: gridViewModel<br/>
+  }<br/>
 }    
     </td>
     
@@ -86,9 +86,9 @@ Can be in memory adapter, ajax based adapter, LightStreamer pusher ...
 <br/>
 <br/>
 function <b>PersonDB()</b> {<br/>
-  &nbsp;this.UpdatePerson = function (data) {...}<br/>
-  &nbsp;this.StorePerson = function (data) {...}<br/>
-  &nbsp;this.DeletePerson = function (entity) {...}<br/>
+  this.UpdatePerson = function (data) {...}<br/>
+  this.StorePerson = function (data) {...}<br/>
+  this.DeletePerson = function (entity) {...}<br/>
 }    
     </td>
     </tr></table>

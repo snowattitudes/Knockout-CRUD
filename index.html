@@ -21,8 +21,9 @@ SLGen reads definitions of fields of table, and generate the classes (js files)
 &nbsp;PersonDB.js => YourEntityDB.js<br/>
 <br/>
 Generated classes are ready for upgrading with additional functionality and business logic.</br>
-That way there is no javascript code at global page level.</br>
+That way there is no javascript code at page (global) level.</br>
 Generator will keep user code upon regeneration of classes.
+</br>
 
 <table border=1 cellpadding=5 cellspacing=0 width=90% style='margin-left:10px;'>
 <tr>
@@ -138,49 +139,49 @@ ViewModels of all the entities are being used in global VieewModel like this: <b
 <tr><td colspan='3'>
 Here is the example of PersonList template.<br />
 It is rasier to change this template, than learn a new API for definition of layout.<br />
-<pre>
+
 <pre><code class="html"> 
 &lt;script type="text/html" id="PersonList"&gt;
-        <div style="float:left">
-             <h4>Team</h4> 
-        </div>
+        &lt;div style="float:left">
+             &lt;h4>Team&lt;/h4> 
+        &lt;/div>
 
-        <div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
-            <div class="input-group iiinput-group-sm">
-                <input id="filterPersonList" type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
-                <span class="input-group-addon" style="padding:2px 6px;"><i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;"></i></span>
-            </div>
-        </div>
+        &lt;div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
+            &lt;div class="input-group iiinput-group-sm">
+                &lt;input id="filterPersonList" type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
+                &lt;span class="input-group-addon" style="padding:2px 6px;">&lt;i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;">&lt;/i>&lt;/span>
+            &lt;/div>
+        &lt;/div>
 
-        <div style="clear:both"></div>
+        &lt;div style="clear:both">&lt;/div>
 
-        <div style="width:100%"> 
-            <div data-bind="SLGrid: $data" /> 
-            <div>
-                <div style="float:left">
-                    <button class="btn btn-primary" data-bind="click: addPerson, enable: canAddPerson">Add Person</button>
-                </div>
-                <div style="float:right;" data-bind="SLGridPager: $data">
-                </div>
-                <div style="float:right; margin-right:20px;">
-                    <span data-bind='text: nItems'></span> people<span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
-                </div>
-                <div style="clear:both"></div>
-            </div>
-        </div>
+        &lt;div style="width:100%"> 
+            &lt;div data-bind="SLGrid: $data" /> 
+            &lt;div>
+                &lt;div style="float:left">
+                    &lt;button class="btn btn-primary" data-bind="click: addPerson, enable: canAddPerson">Add Person&lt;/button>
+                &lt;/div>
+                &lt;div style="float:right;" data-bind="SLGridPager: $data">
+                &lt;/div>
+                &lt;div style="float:right; margin-right:20px;">
+                    &lt;span data-bind='text: nItems'>&lt;/span> people&lt;span data-bind="visible:maxPageIndex()>=itemsOnPager()">, &lt;span data-bind='text:maxPageIndex()+1'>&lt;/span> pages&lt;/span>
+                &lt;/div>
+                &lt;div style="clear:both">&lt;/div>
+            &lt;/div>
+        &lt;/div>
     &lt;/script&gt;
 </code></pre>  
-</pre>
+
 </td></tr>
 
 <tr><td colspan='3'>
 Finally bind PersonTemplate to PersonList.viewModel
-<pre>
+
 <pre><code class="html"> 
-    <div class="entity-list person-list" style="width:80%" data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }">
-    </div>
+    &lt;div class="entity-list person-list" style="width:80%" data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }">
+    &lt;/div>
 </code></pre>  
-</pre>
+
 </td></tr>
     </table>
 

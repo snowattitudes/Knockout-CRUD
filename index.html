@@ -24,6 +24,7 @@ Generated classes are ready for upgrading with additional functionality and busi
 That way there is no javascript code at page (global) level.</br>
 Generator will keep user code upon regeneration of classes.
 </br>
+</br>
 
 <table border=1 cellpadding=5 cellspacing=0 width=90% style='margin-left:10px;'>
 <tr>
@@ -123,7 +124,7 @@ function <b>PersonDB()</b> {
     </tr>
      </table>
      
-        
+<br />        
 <p>
 ViewModels of all the entities are being used in global VieewModel like this: <br />
 <pre><code class="javascript"> 
@@ -140,7 +141,7 @@ ViewModels of all the entities are being used in global VieewModel like this: <b
 
 <p>
 Here is the example of PersonList template.<br />
-It is rasier to change this template, than learn a new API for definition of layout.<br />
+It is easier to change this template, than learn a new API for definition of layout.<br />
 
 <pre><code class="html"> 
 &lt; script type="text/html" id="PersonList"&gt;
@@ -186,7 +187,9 @@ Finally bind PersonTemplate to PersonList.viewModel
 
 <pre><code class="html"> 
     &lt;div class="entity-list person-list" style="width:80%" 
-        data-bind="template: { name: 'PersonList',  data : personListViewModel, afterRender: personListViewModel.afterRender }"&gt;
+        data-bind="template: {  name: 'PersonList',  
+                                data : personListViewModel, 
+                                afterRender: personListViewModel.afterRender }" &gt;
     &lt;/div&gt;
 </code></pre>  
 

@@ -75,15 +75,24 @@ Uses module pattern to overcomes the limitations of the object literal, offering
 <br/>
 <pre><code class="lang-javascript"> 
 var <b>PersonList</b> = (function (DB) {
-  var StorePerson  = function (data) { db.StorePerson(data) }
-  var UpdatePerson = function (data) { db.UpdatePerson(data) }
-  var DeletePerson = function (data) { db.DeletePerson(data) }
-
-  function GridViewModel() {
+  
+  var StorePerson  = function (data) { 
+    db.StorePerson(data) 
   }
 
-  ...
+  var UpdatePerson = function (data) { 
+    db.UpdatePerson(data) 
+  }
+
+  var DeletePerson = function (personId) { 
+    db.DeletePerson(personId) 
+  }
+
+  function GridViewModel() {
+    ...
+  }
   GridViewModel.prototype = new SLGridViewModel();
+
   var gridViewModel = new GridViewModel();
   return {
         viewModel: gridViewModel

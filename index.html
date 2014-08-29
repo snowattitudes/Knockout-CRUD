@@ -1,7 +1,7 @@
 
 <style type="text/css">
     body { padding:10px; }
-    td { padding:10px; }
+    td { padding:10px;  vertical-align:text-top; }
 </style>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
@@ -42,7 +42,7 @@ Generator will keep user code upon regeneration of classes.
 </tr>
 
 <tr>
-    <td><b>Person</b></td>
+    <td>&nbsp;</td>
     <td>
         Keeps ViewModel for Person. <br/><br/>
         Uses module pattern to overcome the limitations of the object literal, 
@@ -62,7 +62,8 @@ var <b>Person</b> = function () {
     this.PersonId = ko.observable(data.PersonId || 0)
     this.Name = ko.observable(data.Name || "")
 
-    this.TwitterName = ko.observable(data.TwitterName || "")
+    this.TwitterName = 
+             ko.observable(data.TwitterName || "")
     ...
 }
 
@@ -72,7 +73,9 @@ Person.prototype.PersonId = ko.observable(0)
         headerText: "Id",
         formLabel: "Id",
         width: "100px",
-        defaultValue: function () { return this.getNextId() }
+        defaultValue: function () { 
+                         return this.getNextId() 
+                      }
     });
 ...
 

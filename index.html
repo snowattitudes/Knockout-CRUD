@@ -27,20 +27,28 @@ Generator will keep user code upon regeneration of classes.
 </br>
 </br>
 
-<table border=1 cellpadding=5 cellspacing=0 width=90% style='margin-left:10px;'>
+<table border=1 cellpadding=0 cellspacing=0 width=90% style='margin-left:10px;'>
 <tr>
     <th width=33%><b>Person</b></th>
     <th><b>PersonList</b>
+    </th>
+    <th><b>PersonDB</b>
+    </th>
+</tr>
+
+<tr>
+    <td><b>Person</b></td>
+    <td>
         Keeps ViewModel for Person. <br/><br/>
         Uses module pattern to overcome the limitations of the object literal, 
         offering privacy for variables and functions while exposing a public API.<br/>
         <br/>
-    </th>
-    <th><b>PersonDB</b>
-        Work with Database (storage)<br/>
+    </td>
+    <td>Work with Database (storage)<br/>
         Adapter can be in-memory, ajax based, LightStreamer pusher, ...  adapter.  <br/>
-    </th>
+    </td>
 </tr>
+
 <tr>
     <td>
     

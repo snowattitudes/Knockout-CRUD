@@ -1,3 +1,123 @@
+(function () {
+    // Private function
+    function getColumnsForScaffolding(data) {
+        if ((typeof data.length !== 'number') || data.length === 0) {
+            return [];
+        }
+        var columns = [];
+        for (var propertyName in data[0]) {
+            columns.push({ headerText: propertyName, colName: propertyName });
+        }
+        return columns;
+    }
+
+    // Templates used to render the grid
+    var templateEngine = new ko.nativeTemplateEngine();
+
+    templateEngine.addTemplate = function (templateName, templateMarkup) {
+        document.write("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "<" + "/script>");
+    };
+
+    templateEngine.addTemplate("ko_SLGrid_grid", "\
+                <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"SLGrid table table-striped table-bordered table-hover table-condensed\" style=\"margin-bottom: 5px;\">\
+                    <thead>\
+                        <tr data-bind=\"foreach: columns\">\
+                            <th data-bind=\"style: { width: width }\">\
+                                <a href=\"#\" data-bind=\"attr: {'data-sort': colName, 'class': sortable ? 'sortable': 'non-sortable'}, enable:sortable\">\
+                                    <span data-bind=\"html: headerText\"></span>\
+					                <!-- ko if: sortable -->\
+					                    <!-- ko ifnot: isSortColumn -->\
+                                        &nbsp;<i class='fa fa-sort'></i><i class='fa fa-caret-up' style='display:none'></i><i class='fa fa-caret-down' style='display:none'></i>\
+                                        <!-- /ko -->\
+					                    <!-- ko if: isSortColumn -->\
+                                        &nbsp;<i class='fa fa-sort' style='display:none'></i><i class='fa fa-caret-up'></i><i class='fa fa-caret-down' style='display:none'></i>\
+                                        <!-- /ko -->\
+                                    <!-- /ko -->\
+                                </a>\
+                            </th>\
+                        </tr>\
+                    </thead>\
+                    <tbody data-bind=\"template: { name: whichTpl4Row, foreach: itemsAtPage, afterRender: afterRenderTR  }\">\
+                    </tbody>\
+                </table>");
+
+    // PagerTemplate
+    /*
+    templateEngine.addTemplate("ko_SLGrid_pageLinks", "\
+                <ul class='pagination' style='margin: 0px;'>\
+                    <li><a href='#'>&laquo;</a></li>\
+                    <!-- ko foreach: ko.utils.range(0, maxPageIndex) -->\
+                        <li>\
+                            <a href='#' data-bind='text: $data + 1, click: function() { $root.setCurrentPageIndex($data) }, css: { selected: $data == $root.currentPageIndex() }'></a>\
+                        </li>\
+                    <!-- /ko -->\
+                    <li><a href='#'>&raquo;</a></li>\
+                </ul>");
+    */
+    // disabledAnchor:!leftPagerEnabled() instead of visible
+    templateEngine.addTemplate("ko_SLGrid_pageLinks", "\
+                <ul class='pagination' style='margin: 0px;'>\
+                    <li><a href='#' data-bind=\"visible:leftPagerEnabled, click: $root.leftPagerClick\">&laquo;</a></li>\
+                    <!-- ko foreach: ko.utils.range(startPagerIndex, endPagerIndex) -->\
+                        <li data-bind='css: { active: $data == $root.currentPageIndex() }'>\
+                            <a href='#' data-bind='text: $data + 1, click: function() { $root.setCurrentPageIndex($data) }'></a>\
+                        </li>\
+                    <!-- /ko -->\
+                    <li ><a href='#'data-bind=\"visible: rightPagerEnabled, click: $root.rightPagerClick\">&raquo;</a></li>\
+                </ul>");
+
+    // The "SLGrid" binding
+    ko.bindingHandlers.SLGrid = {
+
+        init: function (element, viewModelAccessor, allBindings) {
+            var viewModel = viewModelAccessor();
+            viewModel.Subscribe();
+            return { 'controlsDescendantBindings': true };
+        },
+
+        // This method is called to initialize the node, and will also be called again if you change what the grid is bound to
+        update: function (element, viewModelAccessor, allBindings) {
+            var viewModel = viewModelAccessor();
+            // Empty the element
+            while (element.firstChild)
+                ko.removeNode(element.firstChild);
+
+            // Allow the default templates to be overridden
+            var gridTemplateName = allBindings.get('SLGridTemplate') || "ko_SLGrid_grid";
+
+            // Render the main grid
+            var gridContainer = element.appendChild(document.createElement("DIV"));
+            ko.renderTemplate(gridTemplateName, viewModel, { templateEngine: templateEngine, afterRender: viewModel.afterRenderGrid }, gridContainer, "replaceNode");
+        }
+
+    };
+
+    // The "SLGridPager" binding
+    ko.bindingHandlers.SLGridPager = {
+
+        init: function (element, viewModelAccessor, allBindings) {
+            var viewModel = viewModelAccessor();
+            return { 'controlsDescendantBindings': true };
+        },
+
+        // This method is called to initialize the node, and will also be called again if you change what the grid is bound to
+        update: function (element, viewModelAccessor, allBindings) {
+            var viewModel = viewModelAccessor();
+            // Empty the element
+            while (element.firstChild)
+                ko.removeNode(element.firstChild);
+
+            // Allow the default templates to be overridden
+            var pageLinksTemplateName = allBindings.get('SLGridPagerTemplate') || "ko_SLGrid_pageLinks";
+
+            // Render the page links
+            var pageLinksContainer = element.appendChild(document.createElement("DIV"));
+            ko.renderTemplate(pageLinksTemplateName, viewModel, { templateEngine: templateEngine }, pageLinksContainer, "replaceNode");
+        }
+
+    };
+
+})();
 // --------------------------
 //   STAM Binding Handlers
 // --------------------------
@@ -342,7 +462,7 @@ ko.bindingHandlers.bsActionLink = {
             var options = viewModel.__proto__[colName].options;
             if (options.action.match("^javascript:")) {
                 $("<a href='#' data-bind=\"click : " + options.action.substr(11) + ", disabledAnchor: !actionsEnabled()\" style='white-space: nowrap;' class='edit-entity'>" +
-                            (isField ? "<span data-bind=\"text: " + colName + "\"></span>" : "<i class='fa " + icon + "'></i>") +
+                            (isField ? "<span " + (options.badgeColor ? "class='badge pull-right' style='margin-right:5px;background-color:" + options.badgeColor + "'" : "") + "data-bind=\"text: " + colName + "\"></span>" : "<i class='fa " + icon + "'></i>") +
                         "</a>")
                     .appendTo(element)
             }
@@ -567,6 +687,11 @@ function SLGridViewModel(configuration) {
     // If you don't specify columns configuration, we'll use scaffolding
     // this.columns = configuration.columns || getColumnsForScaffolding(ko.unwrap(this.itemsAtPage));
     this.columns = configuration.columns;
+
+    this.listHeader = ko.observable(configuration.listTpl.listHeader);
+    this.textAdd = ko.observable(configuration.listTpl.textAdd);
+    this.textPager = ko.observable(configuration.listTpl.textPager);
+    this.filterInputId = ko.observable(configuration.listTpl.filterInputId);
 
     this.currentPageIndex = ko.observable(0);
     this.maxPageIndex = ko.observable(0);
@@ -1146,126 +1271,179 @@ SLEntity.prototype.isDelete = ko.observable(false);
 //                SLEntity.prototype.gridViewModel == null || !SLEntity.prototype.gridViewModel.isAdding();
 
 //}, SLEntity.prototype);
-(function () {
-    // Private function
-    function getColumnsForScaffolding(data) {
-        if ((typeof data.length !== 'number') || data.length === 0) {
-            return [];
-        }
-        var columns = [];
-        for (var propertyName in data[0]) {
-            columns.push({ headerText: propertyName, colName: propertyName });
-        }
-        return columns;
+
+
+    SLEntity.prototype.getForm = function () { // TODO need testing
+        var primaryKeyName = this.getPrimaryKeyName();
+        return document.getElementById(this.entityName.toLowerCase() +  '-form-' + this[primaryKeyName]())
     }
 
-    // Templates used to render the grid
-    var templateEngine = new ko.nativeTemplateEngine();
+    SLEntity.prototype.cleanNode = function () {
+        ko.cleanNode(this.getForm());
+    }
 
-    templateEngine.addTemplate = function (templateName, templateMarkup) {
-        document.write("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "<" + "/script>");
-    };
+    SLEntity.prototype.renderEditTemplate = function (elem, e) {
+        this.valuesBeforeEdit = this.serialize();
+        this.popoverElem = elem;
+        /*
+        // apply Person as the ViewModel to person-form
+        // ko.applyBindings(self, self.getForm());  // events remain with ko.cleanNode 
+        ko.renderTemplate("EditPersonTemplate", this, { afterRender: this.afterRenderForm }, elem, "replaceChildren");  // this.getForm()
+        */
+        // TODO memory leak
+        ko.applyBindings(this, $(elem).data('bs.popover').tip()[0]);
+        /*
+        //this.afterRenderForm();
+        if (this.displayMode() != "Edit")
+            this.displayMode("Edit");
+        if (e)
+            e.stopPropagation();  // View=>Edit
+        */
+    }
 
-    templateEngine.addTemplate("ko_SLGrid_grid", "\
-                <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"SLGrid table table-striped table-bordered table-hover table-condensed\" style=\"margin-bottom: 5px;\">\
-                    <thead>\
-                        <tr data-bind=\"foreach: columns\">\
-                            <th data-bind=\"style: { width: width }\">\
-                                <a href=\"#\" data-bind=\"attr: {'data-sort': colName, 'class': sortable ? 'sortable': 'non-sortable'}, enable:sortable\">\
-                                    <span data-bind=\"html: headerText\"></span>\
-					                <!-- ko if: sortable -->\
-					                    <!-- ko ifnot: isSortColumn -->\
-                                        &nbsp;<i class='fa fa-sort'></i><i class='fa fa-caret-up' style='display:none'></i><i class='fa fa-caret-down' style='display:none'></i>\
-                                        <!-- /ko -->\
-					                    <!-- ko if: isSortColumn -->\
-                                        &nbsp;<i class='fa fa-sort' style='display:none'></i><i class='fa fa-caret-up'></i><i class='fa fa-caret-down' style='display:none'></i>\
-                                        <!-- /ko -->\
-                                    <!-- /ko -->\
-                                </a>\
-                            </th>\
-                        </tr>\
-                    </thead>\
-                    <tbody data-bind=\"template: { name: whichTpl4Row, foreach: itemsAtPage, afterRender: afterRenderTR  }\">\
-                    </tbody>\
-                </table>");
+    SLEntity.prototype.renderViewTemplate = function (elem, e) {
+        // apply Person as the ViewModel to person-form
+        // ko.applyBindings(self, self.getForm()); // events remain with ko.cleanNode 
+        /*
+        ko.renderTemplate("PersonTemplate", this, {}, this.getForm(), "replaceChildren");
+        */
+        // TODO memory leak
+        this.popoverElem = elem;
+        ko.applyBindings(this, $(elem).data('bs.popover').tip()[0]);
+        //this.afterRenderForm();
 
-    // PagerTemplate
-    /*
-    templateEngine.addTemplate("ko_SLGrid_pageLinks", "\
-                <ul class='pagination' style='margin: 0px;'>\
-                    <li><a href='#'>&laquo;</a></li>\
-                    <!-- ko foreach: ko.utils.range(0, maxPageIndex) -->\
-                        <li>\
-                            <a href='#' data-bind='text: $data + 1, click: function() { $root.setCurrentPageIndex($data) }, css: { selected: $data == $root.currentPageIndex() }'></a>\
-                        </li>\
-                    <!-- /ko -->\
-                    <li><a href='#'>&raquo;</a></li>\
-                </ul>");
-    */
-    // disabledAnchor:!leftPagerEnabled() instead of visible
-    templateEngine.addTemplate("ko_SLGrid_pageLinks", "\
-                <ul class='pagination' style='margin: 0px;'>\
-                    <li><a href='#' data-bind=\"visible:leftPagerEnabled, click: $root.leftPagerClick\">&laquo;</a></li>\
-                    <!-- ko foreach: ko.utils.range(startPagerIndex, endPagerIndex) -->\
-                        <li data-bind='css: { active: $data == $root.currentPageIndex() }'>\
-                            <a href='#' data-bind='text: $data + 1, click: function() { $root.setCurrentPageIndex($data) }'></a>\
-                        </li>\
-                    <!-- /ko -->\
-                    <li ><a href='#'data-bind=\"visible: rightPagerEnabled, click: $root.rightPagerClick\">&raquo;</a></li>\
-                </ul>");
+        //var mode = isDeleteForm ? "Delete" : "View";
+        //this.displayMode(mode);
+        if (e)
+            e.stopPropagation();  // View=>Edit
+    }
 
-    // The "SLGrid" binding
-    ko.bindingHandlers.SLGrid = {
+    SLEntity.prototype.afterRenderForm = function (elems, vm) {
+        $.each(elems, function (i, el) {
+            if (el.tagName == "FORM") {
+                var pos = self.pos;
+                //var popover = this.getPopover();
+                //if (self.placement == "bottom")
+                //    popover.css('left', pos.left - ((popover.outerWidth() - pos.width) / 2) + "px");
+                //else {
+                //    popover.css('left', pos.left - ((popover.outerWidth() - pos.width) / 2) + "px");
+                //    popover.css('top', pos.top - ((popover.outerHeight() - pos.height)) + "px");
+                //}
+            }
+        });
+    }
 
-        init: function (element, viewModelAccessor, allBindings) {
-            var viewModel = viewModelAccessor();
-            viewModel.Subscribe();
-            return { 'controlsDescendantBindings': true };
-        },
+    SLEntity.prototype.cancel = function (data, e, f) {
+        //if (self.valuesBeforeEdit != self.serialize())
+        //    prompt("Are you sure to discard changes?")
+        ko.mapping.fromJSON(this.valuesBeforeEdit, {
+            key: function (person) {
+                return ko.utils.unwrapObservable(person.PersonId);
+            }
+        }, this);
+        $('.edit-entity.popoverShown').popover('hide');
+    }
 
-        // This method is called to initialize the node, and will also be called again if you change what the grid is bound to
-        update: function (element, viewModelAccessor, allBindings) {
-            var viewModel = viewModelAccessor();
-            // Empty the element
-            while (element.firstChild)
-                ko.removeNode(element.firstChild);
+    SLEntity.prototype.save = function (data, e) {
+        this.store();
+        $('.edit-entity.popoverShown').popover('hide');
+    }
 
-            // Allow the default templates to be overridden
-            var gridTemplateName = allBindings.get('SLGridTemplate') || "ko_SLGrid_grid";
-
-            // Render the main grid
-            var gridContainer = element.appendChild(document.createElement("DIV"));
-            ko.renderTemplate(gridTemplateName, viewModel, { templateEngine: templateEngine, afterRender: viewModel.afterRenderGrid }, gridContainer, "replaceNode");
+    SLEntity.prototype.store = function () {
+        var data = this.getData()
+        if (this.isNew()) {
+            this.gridViewModel.store(data);
+            this.isNew(false)
+        } else {
+            this.gridViewModel.update(data);
         }
+    }
 
-    };
+    SLEntity.prototype.onRowEditEnd = function () {
+        this.store();
+    }
 
-    // The "SLGridPager" binding
-    ko.bindingHandlers.SLGridPager = {
-
-        init: function (element, viewModelAccessor, allBindings) {
-            var viewModel = viewModelAccessor();
-            return { 'controlsDescendantBindings': true };
-        },
-
-        // This method is called to initialize the node, and will also be called again if you change what the grid is bound to
-        update: function (element, viewModelAccessor, allBindings) {
-            var viewModel = viewModelAccessor();
-            // Empty the element
-            while (element.firstChild)
-                ko.removeNode(element.firstChild);
-
-            // Allow the default templates to be overridden
-            var pageLinksTemplateName = allBindings.get('SLGridPagerTemplate') || "ko_SLGrid_pageLinks";
-
-            // Render the page links
-            var pageLinksContainer = element.appendChild(document.createElement("DIV"));
-            ko.renderTemplate(pageLinksTemplateName, viewModel, { templateEngine: templateEngine }, pageLinksContainer, "replaceNode");
+    SLEntity.prototype.edit = function (data, e, f) {
+        //var personId = this.PersonId();
+        //var person = $.grep(this.gridViewModel.itemsAtPage(), function (p) { return p.PersonId() == personId });
+        e.stopPropagation();
+        this.displayMode("Edit");
+        /*
+        return
+        //if (self.valuesBeforeEdit != self.serialize())
+        //    prompt("Are you sure to discard changes?")
+        ko.mapping.fromJSON(this.valuesBeforeEdit, {
+        key: function (person) {
+        return ko.utils.unwrapObservable(person.PersonId);
         }
+        }, this);
+        $('.edit-entity.popoverShown').popover('hide');
+        */
+    }
 
-    };
+    SLEntity.prototype.remove = function (data, e, f) {
+        if (e)
+            e.stopPropagation();
+        if (this.isNew()) {  // yet no stored
+            //  a call from addRow
+            this.gridViewModel.onItemRemoved(this);
+        }
+        else
+            this.gridViewModel.remove(this); // callBack is onDeleted
+        /*
+        return
+        //if (self.valuesBeforeEdit != self.serialize())
+        //    prompt("Are you sure to discard changes?")
+        ko.mapping.fromJSON(this.valuesBeforeEdit, {
+        key: function (person) {
+        return ko.utils.unwrapObservable(person.PersonId);
+        }
+        }, this);
+        $('.edit-entity.popoverShown').popover('hide');
+        */
+    }
 
-})();
+    SLEntity.prototype.getPopover = function () {
+        return $(this.popoverElem).data('bs.popover').tip();
+    }
+
+    SLEntity.prototype.setAlert = function (msg) {
+        this.getPopover().find("div.alert").show('slow').end().find("span.msg").html(msg);
+    }
+
+    SLEntity.prototype.onDeleted = function (status, message) {
+        if (this.popoverElem) {
+            if (status == "ok") {
+                this.setAlert("Removed !");
+            }
+            else {
+                this.setAlert(message);
+            }
+
+            var that = this;
+            setTimeout(function () {
+                // popover has to be hidden before table row is removed 
+                that.getPopover().find(".close").trigger('click');
+                //$(that.popoverElem).popover('hide');
+                that.gridViewModel.onItemRemoved(that);
+            }, 2000);
+        }
+        else {
+            alert('removed');
+            this.gridViewModel.onItemRemoved(this);
+        }
+    }
+
+
+
+    SLEntity.prototype.whichTpl4Row = function () {
+        return this.templates[this.rowDisplayMode()];
+    }
+
+    SLEntity.prototype.whichTpl = function (that) {
+        return that.templates[that.displayMode()];
+    }
+
 
 
 function DBEntity() {

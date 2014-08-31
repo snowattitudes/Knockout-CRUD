@@ -461,6 +461,12 @@ var CityList = (function () {
     }
 
     GridViewModel.prototype = new SLGridViewModel({
+        listTpl: {
+            listHeader: "Cities",
+            textAdd: "Add City",
+            textPager: "Cities",
+            filterInputId: "filterCityList"
+        },
         orderByColumn: OrderByColumn,
         columns: City.prototype.getGridColumns(OrderByColumn)
     })
@@ -611,24 +617,24 @@ PersonDB.prototype = new DBEntity();
     //  Person EXTENDS SLEntity
     // ---------------------------
 
-var Person = function (data, gridViewModel) {
-    var self = this;
-    this.gridViewModel = gridViewModel; // the same as PersonList.viewModel
+    var Person = function (data, gridViewModel) {
+        var self = this;
+        this.gridViewModel = gridViewModel; // the same as PersonList.viewModel
 
-    this.PersonId = ko.observable(data.PersonId || 0)
-    this.Name = ko.observable(data.Name || "")
+        this.PersonId = ko.observable(data.PersonId || 0)
+        this.Name = ko.observable(data.Name || "")
 
-    this.IsOnTwitter = ko.observable(data.IsOnTwitter === undefined ? Person.prototype.IsOnTwitter.defaultValue : data.IsOnTwitter)
-    this.TwitterName = ko.observable(data.TwitterName || "")
+        this.IsOnTwitter = ko.observable(data.IsOnTwitter === undefined ? Person.prototype.IsOnTwitter.defaultValue : data.IsOnTwitter)
+        this.TwitterName = ko.observable(data.TwitterName || "")
 
-    this.CityId = ko.observable(data.CityId === undefined ? Person.prototype.CityId.defaultValue : data.CityId)
-    this.chosenCity = ko.computed(function () {
-        return CityList.getCity(this.CityId())
-    }, this);
+        this.CityId = ko.observable(data.CityId === undefined ? Person.prototype.CityId.defaultValue : data.CityId)
+        this.chosenCity = ko.computed(function () {
+            return CityList.getCity(this.CityId())
+        }, this);
 
-    this.isNew = ko.observable(data.isNew || false);
-    this.rowDisplayMode = ko.observable(data.isNew ? "rowAdd" : Person.DEFAULTS.rowDisplayMode);
-}
+        this.isNew = ko.observable(data.isNew || false);
+        this.rowDisplayMode = ko.observable(data.isNew ? "rowAdd" : Person.DEFAULTS.rowDisplayMode);
+    }
 
     Person.DEFAULTS = $.extend({}, SLEntity.DEFAULTS, {
         placement: "right",
@@ -637,38 +643,40 @@ var Person = function (data, gridViewModel) {
 
     Person.prototype = new SLEntity();
 
+    Person.prototype.entityName = "Person";  // Person
+    Person.prototype.placement = "bottom";
+    Person.prototype.templates = {};
+
     Person.prototype.getDefaults = function () {
         return Person.DEFAULTS
     }
 
-    Person.prototype.entityName = "Person";
-
     Person.prototype.PersonId = ko.observable(0)
-                    .extend({
-                        primaryKey: true,
-                        headerText: "Id",
-                        formLabel: "Id",
-                        width: "100px",
-                        defaultValue: function () { return this.getNextId() }
-                    });
+        .extend({
+            primaryKey: true,
+            headerText: "Id",
+            formLabel: "Id",
+            width: "100px",
+            defaultValue: function () { return this.getNextId() }
+        });
 
     Person.prototype.Name = ko.observable("")
-            .extend({
-                headerText: "Name",
-                formLabel: "Name",
-                presentation: "bsPopoverLink", // view form
-                width: "200px",
-                defaultValue: "",
-                required: true,
-                minLength: 2,
-                pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }
-            });
+        .extend({
+            headerText: "Name",
+            formLabel: "Name",
+            presentation: "bsPopoverLink", // view form
+            width: "200px",
+            defaultValue: "",
+            required: true,
+            minLength: 2,
+            pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }
+        });
 
     Person.prototype.IsOnTwitter = ko.observable(false)
-            .extend({
-                formLabel: "On Twitter",
-                defaultValue: false
-            });
+        .extend({
+            formLabel: "On Twitter",
+            defaultValue: false
+        });
 
     Person.prototype.TwitterName = ko.observable("")
         .extend({
@@ -695,7 +703,7 @@ var Person = function (data, gridViewModel) {
 
 
 
-        /*Person.prototype.viewForm = ko.observable("")
+    /*Person.prototype.viewForm = ko.observable("")
         .extend({
         headerText: "View",
         sortable: false,
@@ -703,212 +711,42 @@ var Person = function (data, gridViewModel) {
         presentation: "bsPopoverLink"
         });*/
 
-        Person.prototype.editRow = ko.observable("")
-            .extend({
-                headerText: "Edit",
-                sortable: false,
-                width: "50px",
-                presentation: "bsRowEditLink"
-            });
+    Person.prototype.editRow = ko.observable("")
+        .extend({
+            headerText: "Edit",
+            sortable: false,
+            width: "50px",
+            presentation: "bsRowEditLink"
+        });
 
 
-        Person.prototype.deleteRow = ko.observable("")
-            .extend({
-                headerText: "Delete",
-                sortable: false,
-                width: "50px",
-                presentation: "bsRowDeleteLink"
-            });
-        /*
-        Person.prototype.editForm = ko.observable("")
-            .extend({
-                headerText: "Edit",
-                sortable: false,
-                width: "50px",
-                presentation: "bsPopoverLink"
-            });
+    Person.prototype.deleteRow = ko.observable("")
+        .extend({
+            headerText: "Delete",
+            sortable: false,
+            width: "50px",
+            presentation: "bsRowDeleteLink"
+        });
 
-        Person.prototype.deleteForm = ko.observable("")
-            .extend({
-                headerText: "Delete",
-                sortable: false,
-                width: "50px",
-                presentation: "bsPopoverLink"
-            });
-        */
+    /*
+    Person.prototype.editForm = ko.observable("")
+        .extend({
+            headerText: "Edit",
+            sortable: false,
+            width: "50px",
+            presentation: "bsPopoverLink"
+        });
 
-        Person.prototype.placement = "bottom";
+    Person.prototype.deleteForm = ko.observable("")
+        .extend({
+            headerText: "Delete",
+            sortable: false,
+            width: "50px",
+            presentation: "bsPopoverLink"
+        });
+    */
 
-        Person.prototype.getForm = function () {
-            return document.getElementById('person-form-' + this.PersonId())
-        }
-
-        Person.prototype.cleanNode = function () {
-            ko.cleanNode(this.getForm());
-        }
-
-        Person.prototype.renderEditTemplate = function (elem, e) {
-            this.valuesBeforeEdit = this.serialize();
-            this.popoverElem = elem;
-            /*
-            // apply Person as the ViewModel to person-form
-            // ko.applyBindings(self, self.getForm());  // events remain with ko.cleanNode 
-            ko.renderTemplate("EditPersonTemplate", this, { afterRender: this.afterRenderForm }, elem, "replaceChildren");  // this.getForm()
-            */
-            // TODO memory leak
-            ko.applyBindings(this, $(elem).data('bs.popover').tip()[0]);
-            /*
-            //this.afterRenderForm();
-            if (this.displayMode() != "Edit")
-                this.displayMode("Edit");
-            if (e)
-                e.stopPropagation();  // View=>Edit
-            */
-        }
-
-        Person.prototype.renderViewTemplate = function (elem, e) {
-            // apply Person as the ViewModel to person-form
-            // ko.applyBindings(self, self.getForm()); // events remain with ko.cleanNode 
-            /*
-            ko.renderTemplate("PersonTemplate", this, {}, this.getForm(), "replaceChildren");
-            */
-            // TODO memory leak
-            this.popoverElem = elem;
-            ko.applyBindings(this, $(elem).data('bs.popover').tip()[0]);
-            //this.afterRenderForm();
-
-            //var mode = isDeleteForm ? "Delete" : "View";
-            //this.displayMode(mode);
-            if (e)
-                e.stopPropagation();  // View=>Edit
-        }
-
-        Person.prototype.afterRenderForm = function (elems, vm) {
-            $.each(elems, function (i, el) {
-                if (el.tagName == "FORM") {
-                    var pos = self.pos;
-                    //var popover = this.getPopover();
-                    //if (self.placement == "bottom")
-                    //    popover.css('left', pos.left - ((popover.outerWidth() - pos.width) / 2) + "px");
-                    //else {
-                    //    popover.css('left', pos.left - ((popover.outerWidth() - pos.width) / 2) + "px");
-                    //    popover.css('top', pos.top - ((popover.outerHeight() - pos.height)) + "px");
-                    //}
-                }
-            });
-        }
-
-        Person.prototype.cancel = function (data, e, f) {
-            //if (self.valuesBeforeEdit != self.serialize())
-            //    prompt("Are you sure to discard changes?")
-            ko.mapping.fromJSON(this.valuesBeforeEdit, {
-                key: function (person) {
-                    return ko.utils.unwrapObservable(person.PersonId);
-                }
-            }, this);
-            $('.edit-entity.popoverShown').popover('hide');
-        }
-
-        Person.prototype.save = function (data, e) {
-            this.store();
-            $('.edit-entity.popoverShown').popover('hide');
-        }
-
-        Person.prototype.store = function () {
-            var data = this.getData()
-            if (this.isNew()) {
-                this.gridViewModel.storePerson(data);
-                this.isNew(false)
-            } else {
-                this.gridViewModel.updatePerson(data);
-            }
-        }
-
-        Person.prototype.onRowEditEnd = function () {
-            this.store();
-        }
-
-        Person.prototype.edit = function (data, e, f) {
-            //var personId = this.PersonId();
-            //var person = $.grep(this.gridViewModel.itemsAtPage(), function (p) { return p.PersonId() == personId });
-            e.stopPropagation();
-            this.displayMode("Edit");
-            /*
-            return
-            //if (self.valuesBeforeEdit != self.serialize())
-            //    prompt("Are you sure to discard changes?")
-            ko.mapping.fromJSON(this.valuesBeforeEdit, {
-            key: function (person) {
-            return ko.utils.unwrapObservable(person.PersonId);
-            }
-            }, this);
-            $('.edit-entity.popoverShown').popover('hide');
-            */
-        }
-
-        Person.prototype.remove = function (data, e, f) {
-            if (e)
-                e.stopPropagation();
-            if (this.isNew()) {  // yet no stored
-                //  a call from addRow
-                this.gridViewModel.onItemRemoved(this);
-            }
-            else
-                this.gridViewModel.deletePerson(this); // callBack is onDeleted
-            /*
-            return
-            //if (self.valuesBeforeEdit != self.serialize())
-            //    prompt("Are you sure to discard changes?")
-            ko.mapping.fromJSON(this.valuesBeforeEdit, {
-            key: function (person) {
-            return ko.utils.unwrapObservable(person.PersonId);
-            }
-            }, this);
-            $('.edit-entity.popoverShown').popover('hide');
-            */
-        }
-
-        Person.prototype.getPopover = function () {
-            return $(this.popoverElem).data('bs.popover').tip();
-        }
-
-        Person.prototype.setAlert = function (msg) {
-            this.getPopover().find("div.alert").show('slow').end().find("span.msg").html(msg);
-        }
-
-        Person.prototype.onDeleted = function (status, message) {
-            if (this.popoverElem) {
-                if (status == "ok") {
-                    this.setAlert("Removed !");
-                }
-                else {
-                    this.setAlert(message);
-                }
-
-                var that = this;
-                setTimeout(function () {
-                    // popover has to be hidden before table row is removed 
-                    that.getPopover().find(".close").trigger('click');
-                    //$(that.popoverElem).popover('hide');
-                    that.gridViewModel.onItemRemoved(that);
-                }, 2000);
-            }
-            else {
-                alert('removed');
-                this.gridViewModel.onItemRemoved(this);
-            }
-        }
-
-        Person.prototype.templates = {}
-
-        Person.prototype.whichTpl4Row = function () {
-            return this.templates[this.rowDisplayMode()];
-        }
-
-        Person.prototype.whichTpl = function (that) {
-            return that.templates[that.displayMode()];
-        }
-
+  
        
 
 
@@ -1007,11 +845,11 @@ var PersonList = (function (DB) {
         listFilter = lf;
     }
 
-    var Subscribe = function (filter) {
+    var Subscribe = function (page, size) {
         var query = {
             filter: Filter || "",
-            page: Page,
-            pageSize: PageSize,
+            page: page || Page,
+            pageSize: size || PageSize,
             orderBy: OrderByColumn,
             asc: Asc
         };
@@ -1052,7 +890,6 @@ var PersonList = (function (DB) {
         db.UpdatePerson(data)
     }
 
-
     var DeletePerson = function (person) {
         db.DeletePerson(person)
     }
@@ -1065,10 +902,10 @@ var PersonList = (function (DB) {
         var self = this;
 
         // call from SLGrid.init()
-        this.Subscribe = function (page) {
-            if (page != undefined)
-                Page = page;
-            Subscribe();
+        this.Subscribe = function (page, size) {
+            //if (page != undefined)
+            //    Page = page;
+            Subscribe(page, size);
         }
 
         this.SubscribeFilter = function (filter) {
@@ -1091,15 +928,15 @@ var PersonList = (function (DB) {
             });
         }
 
-        this.updatePerson = function (person) {
+        this.update = function (person) {
             UpdatePerson(person);
         }
 
-        this.storePerson = function (person) {
+        this.store = function (person) {
             StorePerson(person);
         }
 
-        this.deletePerson = function (person) {
+        this.remove = function (person) {
             DeletePerson(person);
         }
 
@@ -1110,9 +947,6 @@ var PersonList = (function (DB) {
                 this.isAdding(false);
         }
 
-        this.canAddPerson = ko.computed(function () {
-            return this.itemsAtPage().length < PageSize + 1;
-        }, this);
 
         this.whichTpl4Row = function (person) {
             //return person.isRowEdit() ? "person-row-edit-template" : "person-row-template"
@@ -1138,26 +972,35 @@ var PersonList = (function (DB) {
             return GetNextId();
         }
 
-        this.addPerson = function () {
+
+        this.canAdd = ko.computed(function () {
+            return this.itemsAtPage().length < PageSize + 1;
+        }, this)
+
+        this.add = function () {
             var data = Person.prototype.defaultData(this);
             data = $.extend({}, data, { isNew: true }) // , isRowEdit: true
             this.isAdding(true);
-            var set = [data];
-            var persons = ko.observableArray([]);
-            ko.mapping.fromJS(set, {
+            var person = ko.mapping.fromJS(data, {
                 key: function (person) {
                     return ko.utils.unwrapObservable(person.PersonId);
                 },
                 create: function (options) {
-                    return new Person(options.data, gridViewModel);
+                    return new Person(options.data, self); // self is gridViewModel
                 }
-            }, persons);
-            this.itemsAtPage.push(persons()[0]);
+            });
+            this.itemsAtPage.push(person);
         }
 
     } // end of GridViewModel
 
     GridViewModel.prototype = new SLGridViewModel({
+        listTpl: {
+            listHeader: "People",
+            textAdd: "Add Person",
+            textPager: "People",
+            filterInputId: "filterPersonList"
+        },
         orderByColumn: OrderByColumn,
         columns: Person.prototype.getGridColumns(OrderByColumn)
     })
@@ -1166,9 +1009,6 @@ var PersonList = (function (DB) {
 
     return {
         viewModel: gridViewModel,
-        //updatePerson: UpdatePerson,
-        //storePerson: StorePerson,
-        //deletePerson: DeletePerson,
         setListFilter: SetListFilter,
         personDB: db
     }

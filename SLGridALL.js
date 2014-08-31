@@ -1,7 +1,6 @@
 (function () {
     // Private function
     function getColumnsForScaffolding(data) {
-        debugger
         if ((typeof data.length !== 'number') || data.length === 0) {
             return [];
         }
@@ -1441,12 +1440,9 @@ SLEntity.prototype.isDelete = ko.observable(false);
         return this.templates[this.rowDisplayMode()];
     }
 
-    //SLEntity.prototype.whichTpl = function (that) {
-    //    return that.templates[that.displayMode()];
-    //}
-    SLEntity.prototype.whichTpl = function () {
+    SLEntity.prototype.whichTpl = function (that) {
         debugger
-        return this.templates[this.displayMode()];
+        return that.templates[that.displayMode()];
     }
 
 

@@ -1441,7 +1441,6 @@ SLEntity.prototype.isDelete = ko.observable(false);
     }
 
     SLEntity.prototype.whichTpl = function (that) {
-        debugger
         return that.templates[that.displayMode()];
     }
 

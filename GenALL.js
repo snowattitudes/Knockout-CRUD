@@ -874,6 +874,12 @@ function EntityFieldList(DB)  {
     } // end of GridViewModel
 
     GridViewModel.prototype = new SLGridViewModel({
+        listTpl: {
+            listHeader: "Entities",
+            textAdd: "Add Entity",
+            textPager: "Entities",
+            filterInputId: ""
+        },
         orderByColumn: OrderByColumn,
         columns: EntityField.prototype.getGridColumns(OrderByColumn)
     })

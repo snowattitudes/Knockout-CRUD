@@ -687,7 +687,6 @@ function SLGridViewModel(configuration) {
     // If you don't specify columns configuration, we'll use scaffolding
     // this.columns = configuration.columns || getColumnsForScaffolding(ko.unwrap(this.itemsAtPage));
     this.columns = configuration.columns;
-
     this.listHeader = ko.observable(configuration.listTpl.listHeader);
     this.textAdd = ko.observable(configuration.listTpl.textAdd);
     this.textPager = ko.observable(configuration.listTpl.textPager);
@@ -1412,13 +1411,16 @@ SLEntity.prototype.isDelete = ko.observable(false);
     }
 
     SLEntity.prototype.onDeleted = function (status, message) {
+        if (status != "ok") {
+            if (this.popoverElem)
+                this.setAlert(status);
+            else
+                alert(status);
+            return;
+        }
+
         if (this.popoverElem) {
-            if (status == "ok") {
-                this.setAlert("Removed !");
-            }
-            else {
-                this.setAlert(message);
-            }
+            this.setAlert("Removed !");
 
             var that = this;
             setTimeout(function () {

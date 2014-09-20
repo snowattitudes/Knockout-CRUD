@@ -96,7 +96,8 @@ Person.prototype.chosenCity = ko.observable()
 
 <pre><code class="lang-javascript"> 
 var <b>PersonList</b> = (function (DB) {
-  
+  var db = DB;
+
   var StorePerson  = function (data) { 
     db.StorePerson(data) 
   }

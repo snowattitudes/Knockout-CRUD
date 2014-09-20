@@ -41,6 +41,7 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/knockout-validation/1.0.2/knockout.validation.min.js"></script>
         <!--<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>-->
         
+        
         <!--
         <script src="SLGrid/SLGrid.js" type="text/javascript"></script>
         <script src="SLGrid/SLBindingHandlers.js" type="text/javascript"></script>
@@ -49,11 +50,12 @@
         <script src="SLGrid/DBEntity.js" type="text/javascript"></script>
         -->
         <script src="SLGridALL.js" type="text/javascript"></script>
-
+        
         <!--
         <script src="Gen/Entity.js" type="text/javascript"></script>
         <script src="Gen/DropDownDataType.js" type="text/javascript"></script>
         <script src="Gen/DropDownPresentation.js" type="text/javascript"></script>
+        <script src="Gen/DropDownForeignKey.js" type="text/javascript"></script>
         <script src="Gen/EntityField/EntityFieldDB.js" type="text/javascript"></script>
         <script src="Gen/EntityField/EntityField.js" type="text/javascript"></script>
         <script src="Gen/EntityField/EntityFieldList.js" type="text/javascript"></script>
@@ -78,7 +80,7 @@
 <body style="padding:30px 80px;">
 
     <div class="well">
-        <h3>SL CRUD Generator</h3>
+        <h3>Knockout CRUD Generator</h3>
         <div class="row">
             <div class="col-md-2">
                 <label for="databaseName">Name:</label>
@@ -86,6 +88,32 @@
             <div class="col-md-10">
                 <span data-bind="text: databaseName"></span>
              </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Relations</h3>
+                <div style='border: 1px solid #ddd;border-radius:4px;width:60%;'>
+                    <table class="table table-condensed table-hover table-stripped table-success">
+                        <tr><th>Table</th><th style="text-align:center">Relation</th><th>Table</th></tr>
+                        <tr class="success">
+                            <td>Person</td>
+                            <td align='center'>1:N</td>
+                            <td>Posts</td>
+                        </tr>
+                        <tr class="success">
+                            <td>Category</td>
+                            <td align='center'>1:N</td>
+                            <td>Posts</td>
+                        </tr>
+                        <tr class="info">
+                            <td>City</td>
+                            <td align='center'>1:N</td>
+                            <td>Person</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -98,18 +126,34 @@
             { FieldId: 2, Name: "Name",         DataType: "string", DefaultValue: "" },
             { FieldId: 3, Name: "IsOnTwitter",  DataType: "bit",    DefaultValue: false },
             { FieldId: 4, Name: "TwitterName",  DataType: "string", DefaultValue: "" },
-            { FieldId: 5, Name: "CityId",       DataType: "long",   DefaultValue: 0, Presentation: "DropDown", ForeignKey: "City.CityId"} /* bsSelectCity */
+            { FieldId: 5, Name: "CityId",       DataType: "long", DefaultValue: 0, Presentation: "DropDown", ForeignKeyId: "City.CityId"}, /* bsSelectCity */
+            { FieldId: 6, Name: "NumOfPosts",   DataType: "int",    DefaultValue: 0 }
         ];
 
-        this.city_Items = [
+        city_Items = [
             { FieldId: 1, Name: "CityId",   DataType: "long",   DefaultValue: 0, PrimarKey: true },
             { FieldId: 2, Name: "Name",     DataType: "string", DefaultValue: "" }
         ];
-        
+
+
+        category_Items = [
+            { FieldId: 1, Name: "CategoryId",  DataType: "long",   DefaultValue: 0, PrimaryKey: true  },
+            { FieldId: 2, Name: "Name",        DataType: "string", DefaultValue: "" },
+            { FieldId: 3, Name: "NumOfPosts",  DataType: "int",    DefaultValue: 0 }
+        ];
+
+       post_Items = [
+            { FieldId: 1, Name: "PostId",       DataType: "long", DefaultValue: 0, PrimarKey: true },
+            { FieldId: 2, Name: "PersonId",     DataType: "long",   DefaultValue: 0, ForeignKeyId: "Person.PersonId"  },
+            { FieldId: 3, Name: "CategoryId",   DataType: "long", DefaultValue: 0, ForeignKeyId: "Category.CategoryId" },
+            { FieldId: 4, Name: "Title",        DataType: "string", DefaultValue: "" },
+            { FieldId: 5, Name: "Content",      DataType: "string", DefaultValue: "" },
+            { FieldId: 6, Name: "Created",      DataType: "datetime", DefaultValue: "" }
+        ];
      
         function GlobalViewModel() {
             var self = this;
-            self.databaseName = ko.observable('Students');
+            self.databaseName = ko.observable('People');
   
             self.entities = ko.observableArray([]);
             self.tabs = ko.observableArray([]);
@@ -239,7 +283,9 @@
         Subscribe : function (obj, callBack) {
             callBack([
                 { EntityId: 1, Name: "Person", Text: "Person", Items: person_Items, IsActive: true },
-                { EntityId: 2, Name: "City", Text: "City", Items: city_Items }
+                { EntityId: 2, Name: "City", Text: "City", Items: city_Items },
+                { EntityId: 3, Name: "Category", Text: "Category", Items: category_Items },
+                { EntityId: 4, Name: "Post", Text: "Post", Items: post_Items }
             ])
         }
     }
@@ -290,7 +336,7 @@
   
 
 
-    <div class="well"  ssstyle="border:1px solid #ddd; border-radius:4px 4px 0 0; padding:5px;">
+    <div class="well">
 
         <div style="float:right;margin-right:20px;">
             <a href="#" onclick="globalViewModel.AddActivateEntity()" title="Refresh"><i class="fa fa-plus-square" style="font-size:22px;"></i></a>
@@ -316,10 +362,7 @@
                     </div>
                     <div  class="tab-content" data-bind="attr : { id : entityId }, css: { active : isActive }">
                         <div class="padded">
-                            <!--<div data-bind='visible:!loaded()' style='z-index:21;position:absolute;left:50%;top:20%;'>
-                                <i class='fa fa-spinner fa-spin fa-4' style='color:rgb(153, 153, 153);'></i>
-                            </div>-->
-                            <div class="entity-list" style="width:80%"  data-bind="template: {  name: 'EntityFieldList',  
+                            <div class="entity-list" style="width:90%"  data-bind="template: {  name: 'EntityFieldList',  
                                 data : entityFieldListViewModel, 
                                 afterRender: entityFieldListViewModel.afterRender }">
                             </div>

@@ -84,7 +84,8 @@ DropDownDataType.prototype.Items = [
         { Id: "long", Name: "long" },
         { Id: "float", Name: "float" },
         { Id: "double", Name: "double" },
-        { Id: "datetime", Name: "datetime" }
+        { Id: "datetime", Name: "datetime" },
+        { Id: "time", Name: "time" },
     ];
 
 DropDownDataType.prototype.getItem = function (id) {
@@ -279,6 +280,118 @@ ko.bindingHandlers.bsDropDownPresentation = {
     update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
     }
 }
+/////////////////////////////////////
+//   ForeignKey
+
+function DropDownForeignKey() {
+
+    this.getItems = function (filter, outItems) {
+        outItems( 
+            $.grep(this.Items, function (a) {
+                return filter == "" || a.Name.indexOf(filter) == 0
+            })
+        )
+    }
+
+}
+
+DropDownForeignKey.prototype.Items = [
+        { Id: undefined, Name: "Undefined" },
+        { Id: "Person.PersonId", Name: "Person.PersonId" },
+        { Id: "Category.CategoryId", Name: "Category.CategoryId" },
+        { Id: "City.CityId", Name: "City.CityId" },
+        { Id: "Post.PostId", Name: "Post.PostId" },
+    ];
+
+DropDownForeignKey.prototype.getItem = function (id) {
+    if (id == undefined)
+        return { Id: "", Name: "" }
+
+    var arr = $.grep(this.Items, function (a) { return a.Id == id });
+    if (arr.length != 1)
+        alert("DropDownDateType, found " + arr.length + " items for Id:" + id)
+    return arr[0]
+}
+
+
+DropDownForeignKey.prototype.viewTemplateName = "view-foreignKey-select-template";
+DropDownForeignKey.prototype.editTemplateName = "edit-foreignKey-select-template";
+
+
+DropDownForeignKey.prototype.viewMarkup = 
+    "<div class='input-group'>\
+            <!-- ko if: chosenForeignKey -->\
+                <span data-bind='text: chosenForeignKey().Name'></span>\
+            <!-- /ko -->\
+            <!-- ko ifnot: chosenForeignKey -->\
+                <span class='form-control'></span>\
+            <!-- /ko -->\
+    </div>";
+
+
+DropDownForeignKey.prototype.editMarkup = 
+    "<div class='input-group'>\
+            <!-- ko if: chosenForeignKey -->\
+            <input type='text' class='form-control' data-bind='value: chosenForeignKey().Name'>\
+            <!-- /ko -->\
+            <!-- ko ifnot: chosenForeignKey -->\
+            <input type='text' class='form-control'>\
+            <!-- /ko -->\
+            <div class='input-group-btn dropdown'>\
+                <button type='button' class='btn btn-default dropdown-toggle' id=\"dropdownMenu1\" data-toggle='dropdown'>\
+                    <span class='caret'></span>\
+                </button>\
+                <ul class=\"dropdown-menu pull-right\" role=\"menu\" aria-labelledby=\"dropdownMenu1\"  style='max-height: 200px;min-width:60px;overflow-y:auto' data-bind=\"foreach: foreignKeyItems\">\
+                    <li><a href='#' data-bind=\"attr: { 'data-id': Id }, text: Name, click: $parent.foreignKeyItemChange\"></a></li>\
+                </ul>\
+            </div>\
+    </div>";
+
+
+
+DropDownForeignKey.prototype.generateTemplates = function (templateEngine) {
+    templateEngine.addTemplate(this.viewTemplateName, this.viewMarkup);
+    templateEngine.addTemplate(this.editTemplateName, this.editMarkup);
+}
+
+
+
+// -------------------
+// bsDropDownForeignKey
+// -------------------
+
+ko.bindingHandlers.bsDropDownForeignKey = {
+    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var value = valueAccessor();
+        var mode = viewModel.rowDisplayMode()
+        var inRow = allBindings.get("inRow");
+
+        var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+        var tpl = isViewMode ? DropDownForeignKey.prototype.viewTemplateName : DropDownForeignKey.prototype.editTemplateName;
+
+        if ($("#" + tpl).length == 0)
+            alert("missing call DropDownForeignKey.prototype.generateTemplates(templateEngine)")
+
+        $(element).html($("#" + tpl).html())
+
+        if (isViewMode) {
+        }
+        else {
+            if (viewModel.foreignKeyItems == undefined) {
+                viewModel.foreignKeyItems = ko.observableArray([])
+                viewModel.dropDownForeignKey = new DropDownForeignKey();
+                viewModel.dropDownForeignKey.getItems("", viewModel.foreignKeyItems);
+                viewModel.foreignKeyItemChange = function (foreignKey, event) {
+                    viewModel.ForeignKeyId(foreignKey.Id);
+                }
+            }
+
+            $(element).find('input').attr('readonly', 'readonly');
+        }
+    },
+    update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+    }
+}
 
 
 // ------------------------------
@@ -307,11 +420,11 @@ var EntityField = function (data, gridViewModel) {
         return DropDownPresentation.prototype.getItem(this.PresentationId())
     }, this);
 
-    //this.ForeignKeyId = ko.observable(data.ForeignKeyId === undefined ? EntityField.prototype.ForeignKeyId.defaultValue : data.ForeignKeyId)
-    //this.chosenForeignKey = ko.computed(function () {
-    //    return ForeignKeyList.getForeignKey(this.ForeignKeyId())
-    //}, this);
-    this.ForeignKey = ko.observable(data.ForeignKey === undefined ? EntityField.prototype.ForeignKey.defaultValue : data.ForeignKey)
+    this.ForeignKeyId = ko.observable(data.ForeignKeyId === undefined ? EntityField.prototype.ForeignKeyId.defaultValue : data.ForeignKeyId)
+    this.chosenForeignKey = ko.computed(function () {
+        return DropDownForeignKey.prototype.getItem(this.ForeignKeyId())
+    }, this);
+    //this.ForeignKey = ko.observable(data.ForeignKey === undefined ? EntityField.prototype.ForeignKey.defaultValue : data.ForeignKey)
 
     this.isNew = ko.observable(data.isNew || false);
     this.rowDisplayMode = ko.observable(data.isNew ? "rowAdd" : EntityField.DEFAULTS.rowDisplayMode);
@@ -404,7 +517,7 @@ EntityField.prototype.chosenPresentation = ko.observable()
 });
 
 // ForeignKey
-/*
+
 EntityField.prototype.ForeignKeyId = ko.observable(0)
 .extend({
     defaultValue: undefined
@@ -414,11 +527,12 @@ EntityField.prototype.chosenForeignKey = ko.observable()
 .extend({
     headerText: "Foreign Key",
     formLabel: "Foreign Key",
+    sortable: false,
     width: "200px",
-    presentation: "bsSelectForeignKey"
+    presentation: "bsDropDownForeignKey"
 });
-*/
 
+/*
 EntityField.prototype.ForeignKey = ko.observable(0)
 .extend({
     headerText: "Foreign Key",
@@ -427,6 +541,7 @@ EntityField.prototype.ForeignKey = ko.observable(0)
     //width: "200px", last column will expand
     defaultValue: undefined
 });
+*/
 
 
 
@@ -646,18 +761,19 @@ function EntityFieldDB(entityName, items) {
 
     // override DBEntity.Subscribe
     this.Subscribe = function (query, callBack) {
-        var items = this.Items;
+        
+        this.ItemsFiltered = this.Items;
         if (query.filter != "") {
             var part = query.filter.split(',');
             if (part.length == 0) {
                 var filter = query.filter.toLowerCase();
-                items = $.grep(items, function (p) {
+                this.ItemsFiltered = $.grep(this.Items, function (p) {
                     return  p.Name.toLowerCase().indexOf(filter) == 0 ||
                             p.TwitterName.toLowerCase().indexOf(filter) == 0
                 });
             }
             else {
-                items = $.grep(items, function (p) {
+                this.ItemsFiltered = $.grep(items, function (p) {
                     return p.Name == part[0] && p.TwitterName == $.trim(part[1])
                 });
             }
@@ -666,11 +782,16 @@ function EntityFieldDB(entityName, items) {
 
         this.Start = (query.page - 1) * query.pageSize;
         this.End = this.Start + query.pageSize;
+        /*
         this.MaxPageIndex = Math.ceil(this.Items.length / query.pageSize) - 1;
         this.SortBy(query.orderBy, query.asc);
         var set = items.slice(this.Start, this.End);
-     
         callBack(set, this.MaxPageIndex, this.Items.length)
+        */
+        this.MaxPageIndex = Math.ceil(this.ItemsFiltered.length / query.pageSize) - 1;
+        this.SortBy(query.orderBy, query.asc);
+        var set = this.ItemsFiltered.slice(this.Start, this.End);
+        callBack(set, this.MaxPageIndex, this.ItemsFiltered.length)
     }
 
     this.GetMaxId = function () {
@@ -719,7 +840,7 @@ EntityFieldDB.prototype = new DBEntity();
 function EntityFieldList(DB)  {
 
     var db = DB,
-        PageSize = 5,
+        PageSize = 50,
         Page = 1,
         Filter = "",
         OrderByColumn = "FieldId",
@@ -801,7 +922,7 @@ function EntityFieldList(DB)  {
             Subscribe();
         }
 
-        this.GetItem = function (id) {
+        this.getItem = function (id) {
             return ko.utils.arrayFirst(ViewModel.itemsAtPage(), function (p) { // grep
                 return p.FieldId() == id;
             });
@@ -905,6 +1026,7 @@ function EntityFieldList(DB)  {
 
     DropDownDataType.prototype.generateTemplates(templateEngine);
     DropDownPresentation.prototype.generateTemplates(templateEngine)
+    DropDownForeignKey.prototype.generateTemplates(templateEngine);
     
     EntityField.prototype.generateTemplates(templateEngine);
 })();

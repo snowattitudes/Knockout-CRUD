@@ -1,0 +1,338 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+
+    <meta name="description" content="Knockout CRUD">
+    <meta name="author" content="Slavko">
+    <link rel="icon" href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta http-equiv="PRAGMA" content="NO-CACHE" />
+
+    <title>Admin Module</title>
+  
+    <!--
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+    -->
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+
+    <link href="Typeahead/Typeahead.css" rel="stylesheet" type="text/css" />
+
+    <link href="css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="css/SLGrid.css" rel="stylesheet" type="text/css" />
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet">
+
+    <style type="text/css">
+        @import url(//fonts.googleapis.com/css?family=Kaushan+Script);
+        .navbar-brand 
+        {
+            font-size: 20px;
+            font-family: 'Kaushan Script', cursive;
+        }
+    </style>
+
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+        function Trace(obj) {
+            if (window.console && window.console.log)
+                window.console.log(obj.toString());
+        }
+    </script>
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">KnockoutCRUD </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Help</a></li>
+          </ul>
+          <form class="navbar-form navbar-right">
+            <input type="text" class="form-control" placeholder="Search...">
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <li id="Cities"><a href="#">Cities</a></li>
+          </ul>
+          <ul class="nav nav-sidebar">
+            <li id="Categories"><a href="#">Categories</a></li>
+            <li id="People" class="active"><a href="#">People</a></li>
+          </ul>
+        </div>
+
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">Admin Module</h1>
+
+          <div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/80x80/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/80x80/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/80x80/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/80x80/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Label</h4>
+              <span class="text-muted">Something else</span>
+            </div>
+          </div>
+
+          <h2 class="sub-header">Section</h2>
+          <div class="table-responsive">
+  
+            <div id="CitiesPanel" class="entity-panel" style="bbborder:1px solid #ddd;display:none;">
+                <div class="entity-list city-list" style="width:80%" 
+                        data-bind="template: { 
+                                    name: 'EntityListTemplate',
+                                    data : cityList, 
+                                    afterRender: cityList.afterRender }" >
+                </div>
+            </div>
+
+
+            <div id="PeoplePanel" class="entity-panel" style="bbborder:1px solid #ddd;display:none;">
+                <div class="entity-list person-list" style="width:80%" 
+                        data-bind="template: { 
+                                    name: 'EntityListTemplate',
+                                    data : personList, 
+                                    afterRender: personList.afterRender }" >
+                </div>
+            </div>
+
+            <div id="CategoriesPanel" class="entity-panel" style="bbborder:1px solid #ddd;display:none;">
+                <div class="entity-list cagegory-list" style="width:80%" 
+                        data-bind="template: { 
+                                    name: 'EntityListTemplate',
+                                    data : categoryList, 
+                                    afterRender: categoryList.afterRender }" >
+                </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+         ==================================================
+         Placed at the end of the document so the pages load faster -->
+   
+    <!--  
+    <script src="Scripts/jquery-2.1.1.js" type="text/javascript"></script>
+    <script src="Scripts/bootstrap.js" type="text/javascript"></script>
+    <script src="Scripts/knockout-3.1.0.debug.js" type="text/javascript"></script>
+    <script src="Scripts/knockout.mapping-latest.debug.js" type="text/javascript"></script>
+    <script src="Scripts/knockout.validation.js" type="text/javascript"></script>
+    <script src="Scripts/jquery.validate.js" type="text/javascript"></script>
+    <script src="Scripts/jquery.validate.unobtrusive.js" type="text/javascript"></script>
+    <script src="Typeahead/typeahead.bundle.js" type="text/javascript"></script>
+    -->
+      
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout-validation/1.0.2/knockout.validation.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
+
+    <!--        
+    <script src="SLGrid/SLGrid.js" type="text/javascript"></script>
+    <script src="SLGrid/SLBindingHandlers.js" type="text/javascript"></script>
+    <script src="SLGrid/SLGridViewModel.js" type="text/javascript"></script>
+    <script src="SLGrid/SLEntity.js" type="text/javascript"></script>
+    <script src="SLGrid/DBEntity.js" type="text/javascript"></script>
+    -->  
+    <script src="SLGridALL.js" type="text/javascript"></script>
+
+    <!--
+    <script src="App/City/CityDB.js" type="text/javascript"></script>
+    <script src="App/City/City.js" type="text/javascript"></script>
+    <script src="App/City/DropDownCity.js" type="text/javascript"></script>
+    <script src="App/City/TypeaheadCity.js" type="text/javascript"></script>
+    <script src="App/City/CityListFilter.js" type="text/javascript"></script>
+    <script src="App/City/CityList.js" type="text/javascript"></script>
+
+    <script src="App/Post/PostDB.js" type="text/javascript"></script>
+    <script src="App/Post/Post.js" type="text/javascript"></script>
+    <script src="App/Post/PostList.js" type="text/javascript"></script>
+
+    <script src="App/Person/PersonDB.js" type="text/javascript"></script>
+    <script src="App/Person/Person.js" type="text/javascript"></script>
+    <script src="App/Person/PersonListFilter.js" type="text/javascript"></script>
+    <script src="App/Person/PersonList.js" type="text/javascript"></script>
+        
+    <script src="App/Category/CategoryDB.js" type="text/javascript"></script>
+    <script src="App/Category/Category.js" type="text/javascript"></script>
+    <script src="App/Category/CategoryListFilter.js" type="text/javascript"></script>
+    <script src="App/Category/CategoryList.js" type="text/javascript"></script>
+    -->
+    <script src="MyAppALL.js" type="text/javascript"></script>
+
+    <script src="js/docs.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="js/ie10-viewport-bug-workaround.js"></script>
+
+    <script type="text/javascript">
+
+        var globalViewModel = {
+            deptId: ko.observable('Department Abc'),
+            deptName: ko.observable('ABC dept'),
+            personList: PersonList.viewModel,
+            cityList: CityList.viewModel,
+            categoryList: CategoryList.viewModel
+            //contactList: new PostList(new PostDB()).viewModel
+        }
+
+        $(document).ready(function () {
+            $('.nav-sidebar > li > a').click(function () {
+                var $li = $('.nav-sidebar > li.active');
+                $('#' + $li.attr('id') + 'Panel').slideUp('slow');
+                $li.removeClass('active');
+
+                $li = $(this).parent();
+                $('#' + $li.attr('id') + 'Panel').slideDown('slow');
+                $li.addClass('active');
+            });
+
+            $('.nav-sidebar > li.active > a').trigger('click');
+
+            ko.applyBindings(globalViewModel);
+
+            $(document).on('click', function (e) {
+                if ($(e.target).closest(".popover").length == 0) { // click out of the popover 
+                    $(".popoverShown").popover("hide"); // hide all
+                }
+            });
+
+        });
+    </script>
+
+
+     <script type="text/html" id="PersonListTemplate">
+        <div style="float:left">
+             <h4>Team</h4> 
+        </div>
+
+        <div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
+            <div class="input-group iiinput-group-sm">
+                <input id="filterPersonList" type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
+                <span class="input-group-addon" style="padding:2px 6px;"><i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;"></i></span>
+            </div>
+        </div>
+
+        <div style="clear:both"></div>
+
+        <div style="width:100%"> 
+            <div data-bind="SLGrid: $data" /> 
+            <div>
+                <div style="float:left">
+                    <button class="btn btn-primary" data-bind="click: addPerson, enable: canAddPerson">Add Person</button>
+                </div>
+                <div style="float:right;" data-bind="SLGridPager: $data">
+                </div>
+                <div style="float:right; margin-right:20px;">
+                    <span data-bind='text: nItems'></span> people<span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </script>
+
+
+     <script type="text/html" id="EntityListTemplate">
+        <div style="float:left">
+             <h4 data-bind="text:listHeader"></h4> 
+        </div>
+
+        <div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
+            <div class="input-group iiinput-group-sm">
+                <input data-bind="attr:{id:filterInputId}"  type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
+                <span class="input-group-addon" style="padding:2px 6px;"><i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;"></i></span>
+            </div>
+        </div>
+
+        <div style="clear:both"></div>
+
+        <div style="width:100%"> 
+            <div data-bind="SLGrid: $data" /> 
+            <div>
+                <div style="float:left">
+                    <button class="btn btn-primary btn-xs" data-bind="click: add, enable: canAdd, text:textAdd"></button>
+                </div>
+                <div style="float:right;" data-bind="SLGridPager: $data">
+                </div>
+                <div style="float:right; margin-right:20px;">
+                    <span data-bind='text: nItems'></span> <span data-bind='textPager'></span>people<span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </script>
+
+
+     <script type="text/html" id="PostListTemplate">
+        <!--<div style="width:100%"> -->
+            <div data-bind="SLGrid: $data" /> 
+            <div>
+                <div style="float:left">
+                    <button class="btn btn-primary btn-xs" data-bind="click: add, enable: canAdd">Add Post</button>
+                </div>
+                <div style="float:right;" data-bind="visible: maxPageIndex()>=1, SLGridPager: $data">
+                </div>
+                <div style="float:right; margin-right:20px;">
+                    <span data-bind='text: nItems'></span> contacts<span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        <!--</div>-->
+    </script>
+
+  </body>
+</html>

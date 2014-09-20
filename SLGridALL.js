@@ -19,7 +19,7 @@
     };
 
     templateEngine.addTemplate("ko_SLGrid_grid", "\
-                <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"SLGrid table table-striped table-bordered table-hover table-condensed\" style=\"margin-bottom: 5px;\">\
+                <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" data-bind=\"css: { 'table-bordered': tableBordered }\" class=\"SLGrid table table-hover table-condensed\" style=\"margin-bottom: 5px;\">\
                     <thead>\
                         <tr data-bind=\"foreach: columns\">\
                             <th data-bind=\"style: { width: width }\">\
@@ -42,18 +42,6 @@
                 </table>");
 
     // PagerTemplate
-    /*
-    templateEngine.addTemplate("ko_SLGrid_pageLinks", "\
-                <ul class='pagination' style='margin: 0px;'>\
-                    <li><a href='#'>&laquo;</a></li>\
-                    <!-- ko foreach: ko.utils.range(0, maxPageIndex) -->\
-                        <li>\
-                            <a href='#' data-bind='text: $data + 1, click: function() { $root.setCurrentPageIndex($data) }, css: { selected: $data == $root.currentPageIndex() }'></a>\
-                        </li>\
-                    <!-- /ko -->\
-                    <li><a href='#'>&raquo;</a></li>\
-                </ul>");
-    */
     // disabledAnchor:!leftPagerEnabled() instead of visible
     templateEngine.addTemplate("ko_SLGrid_pageLinks", "\
                 <ul class='pagination' style='margin: 0px;'>\
@@ -221,52 +209,6 @@ ko.bindingHandlers.bsRowEditLink = {
                         &nbsp;<i class='fa fa-times-circle'></i>\
                     </a>")
             .appendTo(element)
-
-
-                        /*
-                        .on("click", function (e) {
-                            Trace("click");
-                            if (bindingContext.$data.actionsEnabled()) {
-                                // toggle
-                                //if (bindingContext.$data.isRowEditMode())
-                                if (mode == "rowEdit" || mode == "rowAdd") {
-                                    debugger
-                                    if (viewModel.isModified())
-                                        viewModel.onRowEditEnd()
-                                    bindingContext.$data.rowDisplayMode("rowView");
-                                }
-                                else {
-                                    debugger
-                                    bindingContext.$data.takeSnapshot();
-                                    bindingContext.$data.rowDisplayMode("rowEdit");
-                                }
-                            }
-                            e.preventDefault();
-                            e.stopPropagation();
-                        });*/
-    },
-    update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-        var value = valueAccessor();
-        //var mode = ko.unwrap(value);
-        var mode = viewModel.rowDisplayMode();
-        var elem = $(element).find("a:first");
-        //if (elem.hasClass('popoverShown') && mode != "Delete") {
-        /*
-        var form = bindingContext.$data.getForm();
-        ko.cleanNode(elem.data('bs.popover').tip()[0]);
-        if (mode == "Edit") {
-        var markup = $('#person-edit-template').html();
-        $(form).html(markup);
-        bindingContext.$data.renderEditTemplate(elem, null);
-        }
-        else {
-        var markup = $('#person-template').html();
-        $(form).html(markup);
-        bindingContext.$data.renderViewTemplate(elem, null);
-        }
-        */
-        //}
-        //var viewModel = viewModelAccessor();
     }
 };
 
@@ -295,12 +237,6 @@ ko.bindingHandlers.bsRowDeleteLink = {
                             e.preventDefault();
                             e.stopPropagation();
                         });
-    },
-    update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-        var value = valueAccessor();
-        //var mode = ko.unwrap(value);
-        var mode = viewModel.rowDisplayMode()
-        var elem = $(element).find("a:first");
     }
 };
 
@@ -449,17 +385,24 @@ ko.bindingHandlers.bsActionLink = {
                         isEdit = false,
                         isField = colName == "goDetails" ? false : true,
                         icon = "fa-toggle-right";
-
+        if (typeof colName == 'undefined')
+            return;
+        var options = viewModel.__proto__[colName].options
         if (mode == "rowEdit" || mode == "rowAdd" || mode == "Add" || mode == "Edit") {
-            $("<input class=\"form-control\" data-field=\"" + colName + "\" data-bind=\"value: " + colName + ", valueUpdate:'keyup'\"></input>")
-                .appendTo(element)
+            if (options.readOnly) {  // todo use readOnly out of options
+                $("<span class=\"form-control\" data-field=\"" + colName + "\" data-bind=\"text: " + colName + "\"></span>")
+                    .appendTo(element)
+            }
+            else {
+                $("<input class=\"form-control\" data-field=\"" + colName + "\" data-bind=\"value: " + colName + ", valueUpdate:'keyup'\"></input>")
+                    .appendTo(element)
+            }
         }
         //else if (mode == "View") {
         //    $("<span data-field=\"" + colName + "\" data-bind=\"text: " + colName + "\"></span>")
         //        .appendTo(element)
         //}
         else {
-            var options = viewModel.__proto__[colName].options;
             if (options.action.match("^javascript:")) {
                 $("<a href='#' data-bind=\"click : " + options.action.substr(11) + ", disabledAnchor: !actionsEnabled()\" style='white-space: nowrap;' class='edit-entity'>" +
                             (isField ? "<span " + (options.badgeColor ? "class='badge pull-right' style='margin-right:5px;background-color:" + options.badgeColor + "'" : "") + "data-bind=\"text: " + colName + "\"></span>" : "<i class='fa " + icon + "'></i>") +
@@ -691,6 +634,8 @@ function SLGridViewModel(configuration) {
     this.textAdd = ko.observable(configuration.listTpl.textAdd);
     this.textPager = ko.observable(configuration.listTpl.textPager);
     this.filterInputId = ko.observable(configuration.listTpl.filterInputId);
+
+    this.tableBordered = ko.observable(typeof configuration.tableBordered == "undefined" ? true : configuration.tableBordered);
 
     this.currentPageIndex = ko.observable(0);
     this.maxPageIndex = ko.observable(0);
@@ -1080,16 +1025,15 @@ SLEntity.prototype.getDbFields = function () { // {personId:PersonId}
 // TODO use:  primaryKey: true,
 SLEntity.prototype.generateRowTemplate = function () { // primaryKeyAsAttr as {personId:PersonId}
     var arr = [];
-    arr.push("<tr data-bind=\"attr:{" + this.primaryKeyAsAttr + "}\">");
+    arr.push("<tr data-bind=\"attr:{" + this.primaryKeyAsAttr + ", 'data-index': $index }, css : { oddRow : $index()%2==0 }\">"); // nth-child()
     var ignoreColumns = this.ignoreColumns;
     var self = this;
+    var nColumns = 0;
     $.each(this, function (name, value) {
         if ($.inArray(name, ignoreColumns) == -1 && value.headerText != undefined) {
             arr.push("<td>");
+            nColumns++;
             if (value.presentation) {
-                //arr.push("<span data-field=\"" + name + "\" data-bind=\"" + value.presentation + ": { name:'" + name + "'}\"></span>");
-                //arr.push("<span data-field=\"" + name + "\" data-bind=\"" + value.presentation + ": { colName:'" + name + "'} \"></span>");
-                //arr.push("<span data-field=\"" + name + "\" data-bind=\"" + value.presentation + ": rowDisplayMode\"></span>");
                 arr.push("<span data-field=\"" + name + "\" data-bind=\"" + value.presentation + ": " + name + ", inRow:true\"></span>");
             }
             else {
@@ -1098,6 +1042,9 @@ SLEntity.prototype.generateRowTemplate = function () { // primaryKeyAsAttr as {p
             arr.push("</td>")
         }
     });
+    arr.push("</tr>");
+    arr.push("<tr class='row2' data-bind=\"visible: row2IsVisible, attr:{'data-index': $index }, css : { oddRow : $index()%2==0 }\">");
+    arr.push("<td style='overflow:visible; padding: 5px 5px 5px 20px;border-top-width:0px !important' colspan='" + nColumns + "'><div></div></td>");
     arr.push("</tr>");
     return arr.join("\n");
 }
@@ -1127,6 +1074,7 @@ SLEntity.prototype.generateEditRowTemplate = function () { // {personId:PersonId
     var ignoreColumns = this.ignoreColumns;
     var self = this;
     $.each(this, function (name, value) {
+        
         if ($.inArray(name, ignoreColumns) == -1 && value.headerText != undefined) {
             arr.push("<td>");
             if (value.primaryKey) {
@@ -1447,6 +1395,9 @@ SLEntity.prototype.isDelete = ko.observable(false);
     }
 
 
+    SLEntity.prototype.row2IsVisible = ko.observable(false);
+    SLEntity.prototype.row2EverShown = ko.observable(false);
+
 
 function DBEntity() {
     var self = this;
@@ -1496,27 +1447,29 @@ function DBEntity() {
     // ajax call using OData Protocol like this:  http://...?$top=20&$skip=10&filter ...
 
     this.Subscribe = function (query, callBack) {
+        this.ItemsFiltered = this.Items;
         this.Start = (query.page - 1) * query.pageSize;
         this.End = this.Start + query.pageSize;
-        this.MaxPageIndex = Math.ceil(this.Items.length / query.pageSize) - 1;
+        this.MaxPageIndex = Math.ceil(this.ItemsFiltered.length / query.pageSize) - 1;
         this.SortBy(query.orderBy, query.asc);
-        var set = this.Items.slice(this.Start, this.End);
-        callBack(set, this.MaxPageIndex, this.Items.length)
+        var set = this.ItemsFiltered.slice(this.Start, this.End);
+        callBack(set, this.MaxPageIndex, this.ItemsFiltered.length)
     }
+
 
     this.SortBy = function (column, asc) {
         orderByColumn = column;
-        if (this.Items.length == 0)
+        if (this.ItemsFiltered.length == 0)
             return;
-        switch (typeof this.Items[0][column]) {
+        switch (typeof this.ItemsFiltered[0][column]) {
             case "string":
-                this.Items.sort(asc ? this.SortingString : this.SortingStringDesc);
+                this.ItemsFiltered.sort(asc ? this.SortingString : this.SortingStringDesc);
                 break;
             case "number":
-                this.Items.sort(asc ? this.SortingNum : this.SortingNumDesc);
+                this.ItemsFiltered.sort(asc ? this.SortingNum : this.SortingNumDesc);
                 break;
             default:
-                this.Items.sort(asc ? this.Sorting : this.SortingDesc);
+                this.ItemsFiltered.sort(asc ? this.Sorting : this.SortingDesc);
         }
     }
 

@@ -54,6 +54,27 @@ function CityDB() {
             { CityId: 148, Name: "Addis Ababa" }
     ];
 
+
+    this.getItemsForDropDown = function (filter, callBack) {
+        var items = $.grep(this.Items, function (city) {
+            return filter == "" || city.Name.indexOf(filter) >= 0
+        });
+        callBack(items.slice());
+        /*
+        $.ajax({
+        url: '/City/CityNames',
+        data: { top: 1000, skip: 0, filter: "", orderby: "Name asc" },
+        cache: false,
+        success: function (data.items) {
+        callBack(data.items ? data.items.slice() : []);
+        },
+        failure: function (response) {
+        debugger
+        }
+        });
+        */
+    }
+
     this.ItemsFiltered = [];
 
     // override DBEntity.Subscribe
@@ -209,7 +230,7 @@ function DropDownCity() {
         //var dbItems = $.grep(CityDB.Items, function (a) {
         //    return filter == "" || a.Name.indexOf(filter) == 0
         //});
-        CityDB.getItemsForDropDown(filter, 
+        CityList.cityDB.getItemsForDropDown(filter, 
                 function (set) {
                     ko.mapping.fromJS(set, {
                         key: function (city) {
@@ -323,7 +344,7 @@ function TypeaheadCity(vm) {
         //var dbItems = $.grep(CityDB.Items, function (a) {
         //    return filter == "" || a.Name.indexOf(filter) == 0
         //});
-        CityDB.getItemsForDropDown(filter, 
+        CityList.cityDB.getItemsForDropDown(filter, 
                 function (set) {
                     ko.mapping.fromJS(set, {
                         key: function (city) {
@@ -399,7 +420,7 @@ function TypeaheadCity(vm) {
                     }
                 },*/
                 limit: 10,
-                local: $.map(CityDB.Items, function (city) {
+                local: $.map(CityList.cityDB.Items, function (city) {
                     return { val: city.Name /*+ ", " + city.something*/, cityId: city.CityId };
                 })
             });
@@ -1530,8 +1551,8 @@ PersonDB.prototype = new DBEntity();
             headerText: "City",
             formLabel: "City",
             width: "200px",
-            presentation: "bsSelectCity"
-            //presentation: "bsTypeaheadCity"
+            //presentation: "bsSelectCity"
+            presentation: "bsTypeaheadCity"
         });
 
 

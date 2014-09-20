@@ -1551,8 +1551,8 @@ PersonDB.prototype = new DBEntity();
             headerText: "City",
             formLabel: "City",
             width: "200px",
-            //presentation: "bsSelectCity"
-            presentation: "bsTypeaheadCity"
+            presentation: "bsSelectCity"
+            //presentation: "bsTypeaheadCity"
         });
 
 

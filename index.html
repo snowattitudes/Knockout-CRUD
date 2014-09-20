@@ -9,26 +9,26 @@
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/default.min.css">
 <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/highlight.min.js"></script>
 
+<h3>Knockout CRUD with Bootstrap forms</h3>
 
-Knockout CRUD with Bootstrap forms
 
-<br/>
-<br/>
-<br/>
-
-<a href="SLGen.htm"> <i>SLGen</i> Generator </a>
+<a href="SLGen.htm"> <i>Sample Database definition</i></a> and Generator of javascript classes, templates, knockout widgets ...
 <br/><br/>
 
-SLGen reads definitions of tables and fields, and generate the javascript classes (js files).<br/>
-It uses relation established between tables, and generates appropriate javascript code: classes, templates, widgets ...
+<a href="KnockoutCRUD.htm">Admin module</a> after generation. 
+<br/><br/>
+
+Generator reads definitions of tables and fields, and generates javascript classes (js files).<br/>
+It uses relation established between tables, and generates appropriate javascript code: classes, templates, Knockout widgets ...
 <br/><br/>
 &nbsp;Person.js => YourEntity.js<br/>
 &nbsp;PersonList.js => YourEntityList.js<br/>
 &nbsp;PersonDB.js => YourEntityDB.js<br/>
 <br/>
-Generated classes are ready for upgrading with additional functionality and business logic.</br>
+Generated js classes can be easily extended with additional functionality and business logic.</br>
+Business logic can be complex, and users prefer custom events where they can write their custom code.
 That way there is no javascript code at page (global) level.</br>
-Generator will keep user code upon regeneration of classes.
+Generator will keep user code upon canges in database definition and regeneration of classes.
 </br>
 </br>
 
@@ -231,10 +231,6 @@ We use widgets created by Knockout Custom Bindings.<br/>
 Each field can be presenteted in table row, or in Bootstrap form (popover) by different widget.<br/>
 See above mentioned widgets: bsDropDownCity or bsTypeheadCity.<br/>
 
-<br/><br/><br/>
-<b><i>Example of maintenance of Person table, using generated files for Person entity</i></b> <br/>
-<a href="CRUD.htm">Person</a>
-<br/><br/><br/>
 
 
 <script type="text/javascript">

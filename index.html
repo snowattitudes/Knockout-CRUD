@@ -204,9 +204,7 @@
                     Add ViewModel to globalViewModel <br />
                     <pre><code class="javascript"> 
                     var globalViewModel = {
-                        personList: PersonList.viewModel,
-                        cityList: CityList.viewModel,
-                        categoryList: CategoryList.viewModel,
+                        ...
                         yourEntityList: YourEntityList.viewModel
                     }
                 </code></pre> 
@@ -447,7 +445,7 @@
             </div>
 
             <div id="RelationsPanel" class="entity-panel" style="display:none;">
-                Generator delivers UI (HTML and JavaScript code) for presentation of 1:N relation taken form Database Definition.
+                Generator delivers UI (HTML and JavaScript code) for presentation of 1:N relations taken from Database Definition.
                 <br /><br />
                 For example: <br />
                 <ul>

@@ -619,6 +619,20 @@ ko.bindingHandlers.bsSelect = {
         }
     }
 
+
+    ko.bindingHandlers.bsStatus = {
+        update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var value = ko.utils.unwrapObservable(valueAccessor())
+            var mode = viewModel.rowDisplayMode()
+            var inRow = allBindings.get("inRow");
+            var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+            var markup = /*isViewMode ?*/
+                (value == 1 ? "<span class='badge alert-success'>Success</span>" : "<span class='badge alert-danger'>Failure</span>")
+
+            $(element).html(markup)
+        }
+    }
+
 // -----------------
 // SLGridViewModel
 // -----------------

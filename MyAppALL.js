@@ -1288,6 +1288,7 @@ function PostList(DB) {
 
 
 function ShowPosts(ent, e, filter1N) {
+    
     var $tr = $(e.target).closest('tr')
 
     var row2 = $tr.next();

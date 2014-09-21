@@ -114,6 +114,7 @@
           <i>Features</i>
           <ul class="nav nav-sidebar">
             <li id="Widgets"><a href="#">Widgets</a></li>
+            <li id="Relations"><a href="#">1:N Relations</a></li>
           </ul>
           </div>
         </div>
@@ -193,7 +194,7 @@
                 <ul>
 
                 <li>
-                    Generator will generate  <b>YourEntity</b> JavaScript classes based on templates classes:<br/><br/>
+                    Generator will generate  <b>YourEntity</b> JavaScript classes based on template classes:<br/><br/>
                     &nbsp;&nbsp;&nbsp;Person.js => <b>YourEntity</b>.js<br/>
                     &nbsp;&nbsp;&nbsp;PersonList.js => <b>YourEntityList</b>.js<br/>
                     &nbsp;&nbsp;&nbsp;PersonDB.js => <b>YourEntityDB.js</b><br/><br/>
@@ -213,8 +214,7 @@
                 </li>
 
                 <li>
-                Optionally define <b><i>YouEntityList</i></b> template.<br />
-                Otherwise default <i>"EntityListTemplate"</i> will be used.
+                Optionally define <b><i>YouEntityList</i></b> template. Otherwise default <i>"EntityListTemplate"</i> will be used.
                 <br />
                 <br/>
                 </li>
@@ -434,7 +434,6 @@
                     }
                 }
                 </code></pre>  
-
                 That widget can be used like this<br/>
                 <pre><code class="javascript"> 
                     BlogPost.prototype.status = ko.observable("")
@@ -445,9 +444,18 @@
                             width: "30px"
                         });
                 </code></pre>  
-
             </div>
 
+            <div id="RelationsPanel" class="entity-panel" style="display:none;">
+                Generator delivers UI (HTML and JavaScript code) for presentation of 1:N relation taken form Database Definition.
+                <br /><br />
+                For example: <br />
+                <ul>
+                    <li>Person has Posts<br /><img src="Images/PersonPosts.png" /></li>
+                    <li style='margin-top:5px;'>Category has Posts<br /><img src="Images/CategoryPosts.png" /></li>
+                </ul>
+                 
+            </div>
 
           </div>
         </div>

@@ -153,13 +153,13 @@
                 <ul>
                     <li>
                     Provide Database Definition
-                    <a href="SLGen.htm"> <i>Sample Database definition</i></a>
+                    <a href="SLGen.htm"> <i><b>Sample Database definition</b></i></a>
                     </li>
                     <li>
                         Generate of JavaScript classes, HTML templates, Knockout widgets ...
                     </li>
                     <li>
-                        <a href="KnockoutCRUD.htm">Admin module</a> after generation. 
+                        <a href="KnockoutCRUD.htm"><i><b>Admin module</b></i></a> after generation. 
                     </li>
                 </ul>
                  
@@ -171,7 +171,7 @@
                     <li>js classes</li>
                     <li>HTML templates</li>
                     <li>Knockout widgets: dropdowns, typeaheads, date pickers ...</li>
-                    <li>Expanding panels 1:N relations beetween entities (tables)</li>
+                    <li>Expanding panels for 1:N relations beetween entities (tables)</li>
                     </ul>
                 
                 <br/>
@@ -181,8 +181,12 @@
                 <br/>
                 Generated JavaScript code can be easily extended with additional functionality and business logic.</br>
                 Business logic can be complex, and users prefer custom events where they can write their custom code.</br>
-                That way there is no JavaScript code at page (global) level.</br>
-                Generator will keep user changes upon modification of Database Definition and regeneration of classes.
+                That way whole js code is in appropriate classes, and there is no JavaScript code at page (global) level.</br></br>
+                Generator will keep user changes upon modification of Database Definition and regeneration of classes.</br></br>
+
+                The core component is Knockout SLGrid which can host Knockout Widget in each cell column.</br>
+                See feature: "Widgets".
+                That way each table field can have its own presentation.
 
                 <h2>Steps</h2>
                 <br/>
@@ -334,7 +338,8 @@
                   this.DeletePerson = function (id) {
                     ...
                   }
-                }    
+                }   
+                PersonDB.prototype = new DBEntity(); 
                 </code></pre>    
             </div>
 
@@ -412,7 +417,7 @@
 
             <div id="WidgetsPanel" class="entity-panel" style="display:none;">
                 We use widgets created by Knockout Custom Bindings.<br/>
-                Each field can be presenteted in table row, or in Bootstrap form (popover) by different widget.<br/>
+                Each field can be presented in table row, or in Bootstrap form (popover) by different widget.<br/>
                 See above mentioned widgets: bsDropDownCity or bsTypeheadCity.
 
                 <pre><code class="javascript"> 

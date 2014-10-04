@@ -15,7 +15,26 @@
 {
     text-decoration:none
 }
-        
+ 
+tr.row2 
+{
+}
+
+tr.row2 > td
+{
+    /* overflow:visible; padding: 0px 0px;border-top-width:0px !important  */
+}
+
+.oddRow 
+{
+    background-color: #f9f9f9
+}
+
+.pagination > li > span {
+  padding: 3px 6px;
+}
+
+       
 .fa-sort 
 {
     font-size:14px;
@@ -61,3 +80,17 @@ td > span:hover > a > i.fa {
 {
   pppadding: 3px 6px;
 }
+
+ input::-ms-clear {
+    display: none;
+}
+
+
+tr i.fa-caret-up { color:rgb(40, 149, 0); }
+tr i.fa-caret-down { color:rgb(209, 40, 40); }
+
+tr > td > span > i.fa { display:none; }
+
+tr.positive > td > span > i.fa-caret-up { display:inline-block }
+tr.negative > td > span > i.fa-caret-down { display:inline-block }
+

@@ -22,7 +22,7 @@
                 <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" data-bind=\"css: { 'table-bordered': tableBordered }\" class=\"SLGrid table table-hover table-condensed\" style=\"margin-bottom: 5px;\">\
                     <thead>\
                         <tr data-bind=\"foreach: columns\">\
-                            <th data-bind=\"style: { width: width }\">\
+                            <th data-bind=\"style: { width: width, 'text-align': align }\">\
                                 <a href=\"#\" data-bind=\"attr: {'data-sort': colName, 'class': sortable ? 'sortable': 'non-sortable'}, enable:sortable\">\
                                     <span data-bind=\"html: headerText\"></span>\
 					                <!-- ko if: sortable -->\
@@ -161,6 +161,11 @@ ko.extenders.defaultValue = function (target, option) {
 
 ko.extenders.presentation = function (target, option) {
     target['presentation'] = option;
+    return target;
+};
+
+ko.extenders.align = function (target, option) {
+    target['align'] = option;
     return target;
 };
 
@@ -633,6 +638,57 @@ ko.bindingHandlers.bsSelect = {
         }
     }
 
+
+/*
+    ko.extenders.numeric = function (target, precision) {
+        //create a writable computed observable to intercept writes to our observable
+        var result = ko.pureComputed({
+            read: target,  //always return the original observables value
+            write: function (newValue) {
+                var current = target(),
+                roundingMultiplier = Math.pow(10, precision),
+                newValueAsNum = isNaN(newValue) ? 0 : parseFloat(+newValue),
+                valueToWrite = Math.round(newValueAsNum * roundingMultiplier) / roundingMultiplier;
+
+                //only write if it changed
+                if (valueToWrite !== current) {
+                    target(valueToWrite);
+                } else {
+                    //if the rounded value is the same, but a different value was written, force a notification for the current field
+                    if (newValue !== current) {
+                        target.notifySubscribers(valueToWrite);
+                    }
+                }
+            }
+        }).extend({ notify: 'always' });
+
+        //initialize with current value to make sure it is rounded appropriately
+        result(target());
+
+        //return the new computed observable
+        return result;
+    };
+    */
+
+
+    ko.bindingHandlers.bsArrowUpDown = {
+        init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var markup = "<i class='fa fa-lg fa-caret-up'></i><i class='fa fa-lg fa-caret-down'></i>";
+            $(element).html(markup)
+        },
+
+        update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var value = ko.utils.unwrapObservable(valueAccessor())
+            //var mode = viewModel.rowDisplayMode()
+            //var inRow = allBindings.get("inRow");
+            //var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+            //$(element).html(value)
+        }
+    }
+
+
+   
+
 // -----------------
 // SLGridViewModel
 // -----------------
@@ -649,8 +705,9 @@ function SLGridViewModel(configuration) {
     this.textPager = ko.observable(configuration.listTpl.textPager);
     this.filterInputId = ko.observable(configuration.listTpl.filterInputId);
 
-    this.tableBordered = ko.observable(typeof configuration.tableBordered == "undefined" ? true : configuration.tableBordered);
-
+    this.tableBordered = ko.observable(typeof configuration.listTpl.tableBordered == "undefined" ? true : configuration.listTpl.tableBordered);
+    this.hasFilter  = ko.observable(typeof configuration.listTpl.hasFilter == "undefined" ? true : configuration.listTpl.hasFilter);
+    
     this.currentPageIndex = ko.observable(0);
     this.maxPageIndex = ko.observable(0);
     this.nItems = ko.observable(0); // filtered result set 
@@ -870,10 +927,12 @@ SLEntity.prototype.getGridColumns = function (orderByColumn) {
                 sortable: sortable,
                 isSortColumn: name == orderByColumn,
                 width: (value.width || 'auto'),  // "80px"
+                align: (value.align || 'left'),
                 colName: name
             });
         }
     });
+    
     return columns;
 }
 
@@ -1043,12 +1102,19 @@ SLEntity.prototype.generateRowTemplate = function () { // primaryKeyAsAttr as {p
     var ignoreColumns = this.ignoreColumns;
     var self = this;
     var nColumns = 0;
+    var bFoundArrowUpDown = false;
+    var fieldNameOfArrowUpDown = "";
     $.each(this, function (name, value) {
         if ($.inArray(name, ignoreColumns) == -1 && value.headerText != undefined) {
-            arr.push("<td>");
+            arr.push("<td" + (value.align == undefined ? "" : " align='" + value.align + "'") + ">");
             nColumns++;
             if (value.presentation) {
-                arr.push("<span data-field=\"" + name + "\" data-bind=\"" + value.presentation + ": " + name + ", inRow:true\"></span>");
+                var append = ""
+                if (value.presentation == "bsArrowUpDown") {
+                    bFoundArrowUpDown = true;
+                    fieldNameOfArrowUpDown = name;
+                }
+                arr.push("<span data-field=\"" + name + "\" data-bind=\"" + value.presentation + ": " + name + ", inRow:true" + append + "\"></span>");
             }
             else {
                 arr.push("<span data-field=\"" + name + "\" data-bind=\"text: " + name + "\"></span>");
@@ -1056,6 +1122,9 @@ SLEntity.prototype.generateRowTemplate = function () { // primaryKeyAsAttr as {p
             arr.push("</td>")
         }
     });
+    if (bFoundArrowUpDown) {
+        arr[0] = arr[0].replace("$index()%2==0", "$index()%2==0, positive: " + fieldNameOfArrowUpDown + "() > 0, negative: " + fieldNameOfArrowUpDown + "() < 0" );
+    }
     arr.push("</tr>");
     arr.push("<tr class='row2' data-bind=\"visible: row2IsVisible, attr:{'data-index': $index }, css : { oddRow : $index()%2==0 }\">");
     arr.push("<td style='overflow:visible; padding: 5px 5px 5px 20px;border-top-width:0px !important' colspan='" + nColumns + "'><div></div></td>");

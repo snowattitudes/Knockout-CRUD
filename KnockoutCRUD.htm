@@ -25,6 +25,17 @@
     <link href="css/font-awesome.css" rel="stylesheet" type="text/css" />
     <link href="css/SLGrid.css" rel="stylesheet" type="text/css" />
 
+<style type="text/css">
+
+    tr.positive > td > span[data-field='Actual'] { color:rgb(40, 149, 0) }
+    tr.negative > td > span[data-field='Actual'] { color:rgb(209, 40, 40) }
+
+    tr.positive > td > span[data-field='Diff'] { color:rgb(40, 149, 0) }
+    tr.negative > td > span[data-field='Diff'] { color:rgb(209, 40, 40) }
+
+</style>
+
+
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
 
@@ -94,6 +105,7 @@
           <ul class="nav nav-sidebar">
             <li id="Categories"><a href="#">Categories</a></li>
             <li id="People" class="active"><a href="#">People</a></li>
+            <!--<li id="Indizes" class="active"><a href="#">Indizes</a></li>-->
           </ul>
         </div>
 
@@ -146,11 +158,20 @@
             </div>
 
             <div id="CategoriesPanel" class="entity-panel" style="bbborder:1px solid #ddd;display:none;">
-                <div class="entity-list cagegory-list" style="width:80%" 
+                <div class="entity-list category-list" style="width:80%" 
                         data-bind="template: { 
                                     name: 'EntityListTemplate',
                                     data : categoryList, 
                                     afterRender: categoryList.afterRender }" >
+                </div>
+            </div>
+
+            <div id="IndizesPanel" class="entity-panel" style="bbborder:1px solid #ddd;display:none;">
+                <div class="entity-list indizes-list" style="width:50%" 
+                        data-bind="template: { 
+                                    name: 'EntityListTemplate',
+                                    data : indizeList, 
+                                    afterRender: indizeList.afterRender }" >
                 </div>
             </div>
 
@@ -182,19 +203,17 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/knockout-validation/1.0.2/knockout.validation.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min.js"></script>
 
-    
-    <!--   
+    <!--    
     <script src="SLGrid/SLGrid.js" type="text/javascript"></script>
     <script src="SLGrid/SLBindingHandlers.js" type="text/javascript"></script>
     <script src="SLGrid/SLGridViewModel.js" type="text/javascript"></script>
     <script src="SLGrid/SLEntity.js" type="text/javascript"></script>
     <script src="SLGrid/DBEntity.js" type="text/javascript"></script>
-    -->           
+    -->   
+         
     <script src="SLGridALL.js" type="text/javascript"></script>
-    
 
-  
-    <!--
+    <!--   
     <script src="App/City/CityDB.js" type="text/javascript"></script>
     <script src="App/City/City.js" type="text/javascript"></script>
     <script src="App/City/DropDownCity.js" type="text/javascript"></script>
@@ -215,23 +234,53 @@
     <script src="App/Category/Category.js" type="text/javascript"></script>
     <script src="App/Category/CategoryListFilter.js" type="text/javascript"></script>
     <script src="App/Category/CategoryList.js" type="text/javascript"></script>
-    -->  
-    <script src="MyAppALL.js" type="text/javascript"></script>
-    
 
-    <script src="js/docs.min.js"></script>
+    <script src="App/Indize/IndizeDB.js" type="text/javascript"></script>
+    <script src="App/Indize/Indize.js" type="text/javascript"></script>
+    <script src="App/Indize/IndizeList.js" type="text/javascript"></script>
+    -->  
+    
+     <script src="MyAppALL.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="js/docs.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
+    <script type="text/javascript" src="js/ie10-viewport-bug-workaround.js"></script>
 
     <script type="text/javascript">
+
+        ko.bindingHandlers.bsMoney = {
+            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = ko.utils.unwrapObservable(valueAccessor())
+                var mode = viewModel.rowDisplayMode()
+                var inRow = allBindings.get("inRow");
+                var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+
+
+                if (isViewMode) {
+                    var tokens = value.toFixed(2).replace('-', '').split('.');
+                    var s = '$' + $.map(tokens[0].split('').reverse(), function (elm, i) {
+                        return [(i % 3 === 0 && i > 0 ? ',' : ''), elm];
+                    }).reverse().join('') + '.' + tokens[1];
+                    var markup = value < 0 ? '-' + s : s;
+                    $(element).html(markup)
+                }
+                else {
+                    if ($(element).find('input').length == 0) {
+                        var colName = $(element).data("field");
+                        $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
+                    }
+                }
+            }
+        }
+
 
         var globalViewModel = {
             deptId: ko.observable('Department Abc'),
             deptName: ko.observable('ABC dept'),
             personList: PersonList.viewModel,
             cityList: CityList.viewModel,
-            categoryList: CategoryList.viewModel
-            //contactList: new PostList(new PostDB()).viewModel
+            categoryList: CategoryList.viewModel,
+            indizeList: IndizeList.viewModel
         }
 
         $(document).ready(function () {
@@ -255,7 +304,11 @@
                 }
             });
 
+
         });
+
+
+        
     </script>
 
 
@@ -295,7 +348,7 @@
              <h4 data-bind="text:listHeader"></h4> 
         </div>
 
-        <div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;">
+        <div class="form-group" style="float:left;margin:5px;width:200px !important;margin-left:50px;" data-bind="visible:hasFilter">
             <div class="input-group iiinput-group-sm">
                 <input data-bind="attr:{id:filterInputId}"  type="text" class="form-control input-sm typeahead" style="padding:2px 6px;" />
                 <span class="input-group-addon" style="padding:2px 6px;"><i id='icon-typeahead' class="fa fa-filter" style="font-size:14px;"></i></span>
@@ -313,7 +366,7 @@
                 <div style="float:right;" data-bind="SLGridPager: $data">
                 </div>
                 <div style="float:right; margin-right:20px;">
-                    <span data-bind='text: nItems'></span> <span data-bind='textPager'></span>people<span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                    <span data-bind='text: nItems'></span> <span data-bind='text:textPager'></span><span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
                 </div>
                 <div style="clear:both"></div>
             </div>

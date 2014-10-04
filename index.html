@@ -35,8 +35,22 @@
         td { padding:10px;  vertical-align:text-top; }
     </style>
 
+    <style type="text/css">
+        tr.positive > td > span[data-field='Actual'] { color:rgb(40, 149, 0) }
+        tr.negative > td > span[data-field='Actual'] { color:rgb(209, 40, 40) }
+        tr.positive > td > span[data-field='Diff'] { color:rgb(40, 149, 0) }
+        tr.negative > td > span[data-field='Diff'] { color:rgb(209, 40, 40) }
+    </style>
+
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout/3.1.0/knockout-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.4.1/knockout.mapping.js"></script>
+
+    <script src="SLGridALL.js" type="text/javascript"></script>
+    <script src="MyAppALL.js" type="text/javascript"></script>
+
  
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
@@ -95,6 +109,7 @@
           <div class="well"> 
           <ul class="nav nav-sidebar">
             <li id="Overview" class="active"><a href="#">Overview</a></li>
+            <li id="AdminModule"><a href="#">Admin Module</a></li>
           </ul>
           </div>
 
@@ -120,7 +135,7 @@
         </div>
 
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h2 class="page-header">Knockout CRUD with Bootstrap forms</h2>
+          <h2 class="page-header">SLGrid - Knockout jQuery component</h2>
 
           <div class="row placeholders">
             <div class="col-xs-6 col-sm-3 placeholder">
@@ -150,26 +165,413 @@
 
             <div id="OverviewPanel" class="entity-panel" style="display:none;">
 
-                Core component is <i><b>SLGrid</b></i>, developed as Knockout Widget using custom bindings.<br />
-                It is jQuery client component that can be used in any evironment. <br />
+                Core component is <i><b>SLGrid</b></i>, developed as jQuery Knockout Widget using custom bindings. It is jQuery client component that can be used in any evironment. 
+                <br /><br />
                 SLGrid features:
                 <ul>
                 <li>Works with any Database</li>
-                <li>Can be used in any of evironments like: Java, .NET, ...</li>
+                <li>Used in any of evironments like: Java, .NET, ...</li>
                 <li>Standard grid features: Pagination, Search, Sort ...</li>
                 <li>Each cell can host Knockout widget (dropdown, typeahead, date picker, ...) for presentation of field value</li>
+                <li>Each row has expanding panel presenting detail information or the children objects of the row</li>
                 </ul>
+                
+                SL grid uses Knockout and "bindings" sharing objects with other components.
+                The same entity (document) can be presented (bound) in many views like: 
+                <ul>
+                <li>Row view</li>
+                <li>Row edit view</li>
+                <li>Form view</li>
+                <li>Form edit view</li>
+                <li>...</li>
+                </ul>
+                
+                <br />
+                Here is the sample of the usage of SLGrid component.<br />
+                We can see advantages of Knockout widgets used in cells of SLGrid.
                 <br />
                 <br />
-                Beacuse of usage of Knockout and "bindings", grid share the objects with other components, which also "bind" the same objects like Forms, ...  
-                <h3>Here is the sample of usage for <i><b>Admin Module</b></i> of Web Site</h3>
+
+                <div class="well" style="width:70%" >
+                    <div class="entity-list indizes-list" style="width:100%" 
+                            data-bind="template: { 
+                                        name: 'EntityListTemplate',
+                                        data : indizeList, 
+                                        afterRender: indizeList.afterRender }" >
+                    </div>
+                </div>
+
+                <br/>
+                <h2>Steps of usage of SLGrid</h2>
+                <br/>
+                <h4>1) Define classes Indize, IndizeList, IndizeDB (SLGen can generate classes from DB definition)</h4>
+
+    <b><i>Indize</i></b>
+    <pre><code class="javascript">
+     function Indize (data, gridViewModel) {
+        var self = this;
+        this.gridViewModel = gridViewModel; // the same as IndizeList.viewModel
+
+        this.IndizeId = ko.observable(data.IndizeId || 0)
+        this.Title = ko.observable(data.Title || "")
+
+        this.Actual = ko.observable(data.Actual || 0)
+        this.actualPrevious = data.Actual || 0
+        this.actualStatus = ko.computed(function () {
+            var delta = this.Actual() - this.actualPrevious;
+            this.actualPrevious = this.Actual();
+            return delta;
+        }, this);
+
+        this.Diff = ko.observable(data.Diff || 0)
+    }
+
+    Indize.prototype = new SLEntity();
+
+    Indize.prototype.IndizeId = ko.observable(0)
+        .extend({
+            primaryKey: true,
+            width: "100px",
+            defaultValue: function () { return this.getNextId() }
+        });
+
+    Indize.prototype.Title = ko.observable("")
+        .extend({
+            headerText: "Title",
+            formLabel: "Title",
+            presentation: "bsPopoverLink", // view form
+            width: "200px",
+            defaultValue: "",
+            required: true,
+            minLength: 20,
+            pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }
+        });
+
+    Indize.prototype.Actual = ko.observable(0)
+        .extend({
+            headerText: "Actual",
+            formLabel: "Actual",
+            width: "auto", // one of the columns with take rest of row space
+            defaultValue: 0,
+            presentation: "bsMoney",
+            align : 'right'
+        });
+
+    Indize.prototype.actualStatus = ko.observable("")
+        .extend({
+            headerText: "",
+            formLabel: "",
+            width: "20px",
+            sortable: false,
+            defaultValue: "",
+            presentation: "bsArrowUpDown",
+            align: "center"
+        });
+
+    Indize.prototype.Diff = ko.observable(0)
+        .extend({
+            headerText: "Diff. (%)",
+            formLabel: "Diff. (%)",
+            width: "70px", // one of the columns with take rest of row space
+            defaultValue: 0,
+            //presentation: "bsMoney",
+            sortable:false,
+            align: 'right'
+        });
+
+    
+    Indize.prototype.editRow = ko.observable("")
+        .extend({
+            headerText: "",  //"Edit"
+            sortable: false,
+            width: "30px",
+            presentation: "bsRowEditLink"
+        });
+
+    Indize.prototype.deleteRow = ko.observable("")
+        .extend({
+            headerText: "", // "Delete"
+            sortable: false,
+            width: "30px",
+            presentation: "bsRowDeleteLink"
+        });
+
+</code></pre>
+
+<b><i>IndizeList</i></b>
+<pre><code class="javascript">
+var <big><b>IndizeList</b></big> = (function (DB) {
+    var db = DB,
+        PageSize = 10,
+        Page = 1,
+        Filter = "",
+        OrderByColumn = "Title",
+        Asc = true;
+
+    var Subscribe = function (page, size) {
+        var query = {
+            filter: Filter || "",
+            page: page || Page,
+            pageSize: size || PageSize,
+            orderBy: OrderByColumn,
+            asc: Asc
+        };
+        db.Subscribe(query, PushInitialSet);
+    }
+
+    var PushInitialSet = function (set, maxPageIndex, nItems) {
+        ko.mapping.fromJS(set, {
+            key: function (indize) {
+                return ko.utils.unwrapObservable(indize.IndizeId);
+            },
+            create: function (options) {
+                return new Indize(options.data, gridViewModel);
+            }
+        }, gridViewModel.itemsAtPage);
+        gridViewModel.nItems(nItems);
+        gridViewModel.maxPageIndex(maxPageIndex);
+    }
+
+    var PushUpdates = function () { }
+
+    var GetDB = function () { return db; }
+
+    var GetIndize = function (id) { return db.GetIndize(id); }
+    var StoreIndize = function (data) { db.StoreIndize(data) }
+    var UpdateIndize = function (data) { db.UpdateIndize(data) }
+    var DeleteIndize = function (indize) { db.DeleteIndize(indize) }
+
+    var GetNextId = function () { return db.GetMaxId() + 1; }
+
+    function GridViewModel() {
+        var self = this;
+
+        this.Subscribe = function (page, size) {
+            Subscribe(page, size);
+        }
+
+        this.getItem = function (id) {
+            return ko.utils.arrayFirst(ViewModel.itemsAtPage(), function (p) { // grep
+                return p.IndizeId() == id;
+            });
+        }
+
+        this.update = function (indize) {  UpdateIndize(indize); }
+        this.store = function (indize) {   StoreIndize(indize);  }
+        this.remove = function (indize) {  DeleteIndize(indize); }
+
+        this.afterRender = function (elems, z) {
+            setTimeout(function () { db.pushChange() }, 1000)
+        }
+
+        this.afterRenderTR = function (elems, ent) { }
+
+        this.canAdd = ko.computed(function () {
+            return this.itemsAtPage().length < PageSize + 1;
+        }, this)
+
+        this.add = function () {
+            var data = Indize.prototype.defaultData(this);
+            data = $.extend({}, data, { isNew: true }) // , isRowEdit: true
+            this.isAdding(true);
+            var indize = ko.mapping.fromJS(data, {
+                key: function (indize) {
+                    return ko.utils.unwrapObservable(indize.IndizeId);
+                },
+                create: function (options) {
+                    return new Indize(options.data, self); // self is gridViewModel
+                }
+            });
+            this.itemsAtPage.push(indize);
+        }
+
+    } // end of GridViewModel
+
+    GridViewModel.prototype = new SLGridViewModel({
+        orderByColumn: OrderByColumn,
+        columns: Indize.prototype.getGridColumns(OrderByColumn)
+    })
+
+    var gridViewModel = new GridViewModel();
+
+    return {
+        viewModel: gridViewModel,
+        indizeDB: db
+    }
+
+})(new IndizeDB());
+
+</code></pre>
+
+<b><i>IndizeDB</i></b>
+<pre><code class="javascript">
+function IndizeDB() {
+    var self = this;
+
+    this.Items = [
+            { IndizeId: 1, Title: "DAX", Actual: 9578.60, Diff: -0.31 },
+            { IndizeId: 2, Title: "TECDAX", Actual: 1229.06, Diff: 0.21 },
+            { IndizeId: 3, Title: "FTSE 100", Actual: 6662.10, Diff: -0.20},
+            { IndizeId: 4, Title: "CAC 40", Actual: 4368.68, Diff: 0},
+            { IndizeId: 5, Title: "Nasdaq 100", Actual: 4103.083, Diff: 0.72},
+            { IndizeId: 6, Title: "S&P 500", Actual: 2011.36, Diff: 0.49},
+            { IndizeId: 7, Title: "EuroStoxx 50", Actual: 3208.76, Diff: 0.08},
+            { IndizeId: 8, Title: "Nikkei 225", Actual: 16321.17, Diff: 1.58},
+            { IndizeId: 9, Title: "Hang Seng", Actual: 24377.05, Diff: 0.86},
+            { IndizeId: 10, Title: "ASX", Actual: 5437.30, Diff: 0.34 }
+        ];
+
+    this.Subscribe = function (query, callBack) {
+            this.ItemsFiltered = this.Items;
+            this.Start = (query.page - 1) * query.pageSize;
+            this.End = this.Start + query.pageSize;
+            this.MaxPageIndex = Math.ceil(this.ItemsFiltered.length / query.pageSize) - 1;
+            this.SortBy(query.orderBy, query.asc);
+            var set = this.ItemsFiltered.slice(this.Start, this.End);
+            callBack(set, this.MaxPageIndex, this.ItemsFiltered.length)
+    }
+
+    this.pushChange = function () {
+        var neg = Math.round(Math.random() * 1);
+        var percent = Math.random() * 10;
+        if (neg == 0)
+            percent = -percent;
+        var i = Math.floor(Math.random() * (IndizeList.viewModel.itemsAtPage().length));
+        var item = IndizeList.viewModel.itemsAtPage()[i];
+        var delta = (item.Actual() / 100) * percent;
+        item.Diff(percent.toFixed(1));
+        item.Actual(item.Actual() + delta); //(neg == 0 ? -delta : delta))
+        setTimeout(function () { self.pushChange() }, 100)
+    }
+
+    this.GetMaxId = function () {
+        var arr = this.Items.map(function (data, i) { return data.IndizeId; });
+        return Math.max.apply(null, arr);
+    }
+
+    this.GetIndize = function (indizeId) {
+        return ko.utils.arrayFirst(this.Items, function (p) {
+            return p.IndizeId == indizeId;
+        });
+        return null;
+    }
+
+    this.UpdateIndize = function (data) {
+        var indize = this.GetIndize(data.IndizeId);
+        $.each(indize, function (name, value) {
+            indize[name] = data[name];
+        });
+    }
+
+    this.StoreIndize = function (data) {
+        this.Items.push(data)
+    }
+
+    this.DeleteIndize = function (entity) {
+        var data = this.GetIndize(entity.IndizeId());
+        this.Items.splice($.inArray(data, this.Items), 1);
+        setTimeout(function () { entity.onDeleted("ok", "deleted") }, 100);
+    }
+
+};
+
+IndizeDB.prototype = new DBEntity();
+</code></pre>
+
+<b><i>Knockout widget: bsMoney</i></b>
+<pre><code class="javascript">
+    ko.bindingHandlers.bsMoney = {
+        update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var value = ko.utils.unwrapObservable(valueAccessor())
+            var mode = viewModel.rowDisplayMode()
+            var inRow = allBindings.get("inRow");
+            var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+
+            if (isViewMode) {
+                var tokens = value.toFixed(2).replace('-', '').split('.');
+                var s = '$' + $.map(tokens[0].split('').reverse(), function (elm, i) {
+                    return [(i % 3 === 0 && i &gt; 0 ? ',' : ''), elm];
+                }).reverse().join('') + '.' + tokens[1];
+                var markup = value &lt; 0 ? '-' + s : s;
+                $(element).html(markup)
+            }
+            else {
+                if ($(element).find('input').length == 0) {
+                    var colName = $(element).data("field");
+                    $(element).html("&lt;input style='text-align:right' class='form-control' 
+                                data-field='" + colName + "' 
+                                data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\"&gt;")
+                }
+            }
+        }
+    }
+
+    </code></pre>
+
+<h4>2) Add view model to global view model </h4>
+<pre><code class="javascript">
+        var globalViewModel = {
+            ...
+            indizeList: IndizeList.viewModel
+        }
+
+        $(document).ready(function () {
+            ko.applyBindings(globalViewModel);
+        });
+
+</code></pre>
+<br />
+<h4>3) Create Indize list template, or default <b><i>EntityListTemplate</i></b>  will be used </h4>
+<pre><code class="html"> 
+&lt;script type="text/html" id="EntityListTemplate"&gt;
+        &lt;div style="float:left"&gt;
+             &lt;h4 data-bind="text:listHeader"&gt;&lt;/h4&gt; 
+        &lt;/div&gt;
+
+        &lt;div style="clear:both"&gt;&lt;/div&gt;
+
+        &lt;div style="width:100%"&gt; 
+            &lt;div data-bind="SLGrid: $data" /&gt; 
+            &lt;div&gt;
+                &lt;div style="float:left"&gt;
+                    &lt;button class="btn btn-primary btn-xs" 
+                        data-bind="click: add, enable: canAdd, text:textAdd"&gt;&lt;/button&gt;
+                &lt;/div&gt;
+                &lt;div style="float:right;" data-bind="SLGridPager: $data"&gt;
+                &lt;/div&gt;
+                &lt;div style="float:right; margin-right:20px;"&gt;
+                    &lt;span data-bind='text: nItems'&gt;&lt;/span&gt; &lt;span data-bind='text:textPager'&gt;&lt;/span&gt;
+                    &lt;span data-bind="visible:maxPageIndex()&gt;=itemsOnPager()"&gt;, 
+                    &lt;span data-bind='text:maxPageIndex()+1'&gt;&lt;/span&gt; pages&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div style="clear:both"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/script&gt;
+</code></pre>
+<br />
+<h4>4) Bind IndizeTemplate to IndizeList.viewModel  </h4>
+<pre><code class="html"> 
+    &lt;div class="entity-list indizes-list" style="width:50%" 
+            data-bind="template: { 
+                        name: 'EntityListTemplate',
+                        data : indizeList, 
+                        afterRender: indizeList.afterRender }" &gt;
+    &lt;/div&gt;
+</code></pre>
+
+            </div>
+  
+
+            <div id="AdminModulePanel" class="entity-panel" style="display:none;">
+                <h3>Here is the sample of usage of SLGrid for <i><b>Admin Module</b></i> of Web Site</h3>
                 <ul>
                     <li>
                     Provide Database Definition
                     <a href="SLGen.htm"> <i><b>Sample Database definition</b></i></a>
                     </li>
                     <li>
-                        Generate of JavaScript classes, HTML templates, Knockout widgets ...
+                        Run the Generator to create JavaScript classes, HTML Templates, Knockout widgets ...
                     </li>
                     <li>
                         <a href="KnockoutCRUD.htm"><i><b>Admin module</b></i></a> after generation. 
@@ -241,11 +643,8 @@
                 </li>
 
                 </ul>
-                
-
-               
             </div>
-  
+
             <div id="PersonPanel" class="entity-panel" style="display:none;">
                 <pre><code class="lang-javascript">    
                 var <b>Person</b> = function () {
@@ -477,31 +876,85 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/highlight.min.js"></script>
 
 
+    <script type="text/html" id="EntityListTemplate">
+        <div style="float:left">
+             <h4 data-bind="text:listHeader"></h4> 
+        </div>
+
+        <div style="clear:both"></div>
+
+        <div style="width:100%"> 
+            <div data-bind="SLGrid: $data" /> 
+            <div>
+                <div style="float:left">
+                    <button class="btn btn-primary btn-xs" data-bind="click: add, enable: canAdd, text:textAdd"></button>
+                </div>
+                <div style="float:right;" data-bind="SLGridPager: $data">
+                </div>
+                <div style="float:right; margin-right:20px;">
+                    <span data-bind='text: nItems'></span> <span data-bind='text:textPager'></span><span data-bind="visible:maxPageIndex()>=itemsOnPager()">, <span data-bind='text:maxPageIndex()+1'></span> pages</span>
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </script>
 
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        //hljs.configure({language: 'JavaScript'});
-        $('pre code').each(function (i, block) {
-            hljs.highlightBlock(block);
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //hljs.configure({language: 'JavaScript'});
+            $('pre code').each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
+
+            $('.nav-sidebar > li > a').click(function () {
+                var $li = $('.nav-sidebar > li.active');
+                $('#' + $li.attr('id') + 'Panel').slideUp('slow');
+                $li.removeClass('active');
+
+                $li = $(this).parent();
+                $('#' + $li.attr('id') + 'Panel').slideDown('slow');
+                $li.addClass('active');
+            });
+
+            $('.nav-sidebar > li.active > a').trigger('click');
         });
+    </script>
 
-        $('.nav-sidebar > li > a').click(function () {
-            var $li = $('.nav-sidebar > li.active');
-            $('#' + $li.attr('id') + 'Panel').slideUp('slow');
-            $li.removeClass('active');
+    <script type="text/javascript">
+        var globalViewModel = {
+            indizeList: IndizeList.viewModel
+        }
 
-            $li = $(this).parent();
-            $('#' + $li.attr('id') + 'Panel').slideDown('slow');
-            $li.addClass('active');
+        $(document).ready(function () {
+            ko.applyBindings(globalViewModel);
         });
+  
+        ko.bindingHandlers.bsMoney = {
+            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = ko.utils.unwrapObservable(valueAccessor())
+                var mode = viewModel.rowDisplayMode()
+                var inRow = allBindings.get("inRow");
+                var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
 
-        $('.nav-sidebar > li.active > a').trigger('click');
 
-    });
+                if (isViewMode) {
+                    var tokens = value.toFixed(2).replace('-', '').split('.');
+                    var s = '$' + $.map(tokens[0].split('').reverse(), function (elm, i) {
+                        return [(i % 3 === 0 && i > 0 ? ',' : ''), elm];
+                    }).reverse().join('') + '.' + tokens[1];
+                    var markup = value < 0 ? '-' + s : s;
+                    $(element).html(markup)
+                }
+                else {
+                    if ($(element).find('input').length == 0) {
+                        var colName = $(element).data("field");
+                        $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
+                    }
+                }
+            }
+        }
+    </script>
 
-</script>
-
- 
   </body>
 </html>

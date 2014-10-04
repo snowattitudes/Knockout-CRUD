@@ -710,21 +710,7 @@ var CityList = (function (DB) {
 
         this.afterRender = function (elems, z) {
             $.each(elems, function (i, el) {
-                /*
-                if (typeof el.tagName != "undefined") {
-                if (el.tagName == "DIV") {
-                var $table = $(el).parent().find('table');
-                var n = $table.find('tr[data-index]').length;
-                debugger
-                $table.find('tr[data-index]:even').addClass('oddRow');
-                return false; // break
-                }
-                }
-                */
             });
-            //if ($(el).data("index") % 2 == 0) {
-            //    $(el).find('td').attr("background-color", "#f9f9f9")
-            //}
             if (listFilter)
                 listFilter.initTypeahead();
         }
@@ -1836,21 +1822,7 @@ var PersonList = (function (DB) {
 
         this.afterRender = function (elems, z) {
             $.each(elems, function (i, el) {
-                /*
-                if (typeof el.tagName != "undefined") {
-                if (el.tagName == "DIV") {
-                var $table = $(el).parent().find('table');
-                var n = $table.find('tr[data-index]').length;
-                debugger
-                $table.find('tr[data-index]:even').addClass('oddRow');
-                return false; // break
-                }
-                }
-                */
             });
-            //if ($(el).data("index") % 2 == 0) {
-            //    $(el).find('td').attr("background-color", "#f9f9f9")
-            //}
             if (listFilter)
                 listFilter.initTypeahead();
         }
@@ -2350,21 +2322,8 @@ var CategoryList = (function (DB) {
 
         this.afterRender = function (elems, z) {
             $.each(elems, function (i, el) {
-                /*
-                if (typeof el.tagName != "undefined") {
-                if (el.tagName == "DIV") {
-                var $table = $(el).parent().find('table');
-                var n = $table.find('tr[data-index]').length;
-                debugger
-                $table.find('tr[data-index]:even').addClass('oddRow');
-                return false; // break
-                }
-                }
-                */
+               
             });
-            //if ($(el).data("index") % 2 == 0) {
-            //    $(el).find('td').attr("background-color", "#f9f9f9")
-            //}
             if (listFilter)
                 listFilter.initTypeahead();
         }
@@ -2436,6 +2395,478 @@ CategoryList.setListFilter(new CategoryListFilter(CategoryList));
         document.write("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "<" + "/script>");
     };
     Category.prototype.generateTemplates(templateEngine);
+})();
+
+
+
+
+
+
+function IndizeDB() {
+    var self = this;
+
+    this.entityName = "IndizeDB";
+
+    this.Items = [
+            { IndizeId: 1, Title: "DAX", Actual: 9578.60, Diff: -0.31 },
+            { IndizeId: 2, Title: "TECDAX", Actual: 1229.06, Diff: 0.21 },
+            { IndizeId: 3, Title: "FTSE 100", Actual: 6662.10, Diff: -0.20},
+            { IndizeId: 4, Title: "CAC 40", Actual: 4368.68, Diff: 0},
+            { IndizeId: 5, Title: "Nasdaq 100", Actual: 4103.083, Diff: 0.72},
+            { IndizeId: 6, Title: "S&P 500", Actual: 2011.36, Diff: 0.49},
+            { IndizeId: 7, Title: "EuroStoxx 50", Actual: 3208.76, Diff: 0.08},
+            { IndizeId: 8, Title: "Nikkei 225", Actual: 16321.17, Diff: 1.58},
+            { IndizeId: 9, Title: "Hang Seng", Actual: 24377.05, Diff: 0.86},
+            { IndizeId: 10, Title: "ASX", Actual: 5437.30, Diff: 0.34 }
+        ];
+
+    /**************
+        TODO If we have the same ID, we have problem !
+    **********/
+
+    this.ItemsFiltered = [];
+
+    // override DBEntity.Subscribe
+    this.Subscribe = function (query, callBack) {
+            
+            this.ItemsFiltered = this.Items;
+                if (query.filter != "") {
+                    var part = query.filter.split(',');
+                    if (part.length == 0) {
+                        var filter = query.filter.toLowerCase();
+                        this.ItemsFiltered = $.grep(this.Items, function (p) {
+                            return  p.Title.toLowerCase().indexOf(filter) == 0 
+                        });
+                    }
+                    else {
+                        this.ItemsFiltered = $.grep(this.Items, function (p) {
+                            return p.Title == part[0] && p.TwitterName == $.trim(part[1])
+                        });
+                    }
+                }
+                this.Start = (query.page - 1) * query.pageSize;
+                this.End = this.Start + query.pageSize;
+                /*
+                this.MaxPageIndex = Math.ceil(this.Items.length / query.pageSize) - 1;
+                this.SortBy(query.orderBy, query.asc);
+                var set = items.slice(this.Start, this.End);
+                callBack(set, this.MaxPageIndex, this.Items.length)
+                */
+                this.MaxPageIndex = Math.ceil(this.ItemsFiltered.length / query.pageSize) - 1;
+                this.SortBy(query.orderBy, query.asc);
+                var set = this.ItemsFiltered.slice(this.Start, this.End);
+                callBack(set, this.MaxPageIndex, this.ItemsFiltered.length)
+            }
+
+            this.pushChange = function () {
+                var neg = Math.round(Math.random() * 1);
+                var percent = Math.random() * 10;
+                if (neg == 0)
+                    percent = -percent;
+                var i = Math.floor(Math.random() * (IndizeList.viewModel.itemsAtPage().length));
+                var item = IndizeList.viewModel.itemsAtPage()[i];
+                var delta = (item.Actual() / 100) * percent;
+                item.Diff(percent.toFixed(1));
+                item.Actual(item.Actual() + delta); //(neg == 0 ? -delta : delta))
+                setTimeout(function () { self.pushChange() }, 100)
+            }
+
+
+    this.GetMaxId = function () {
+        var arr = this.Items.map(function (data, i) {
+            return data.IndizeId;
+        });
+        return Math.max.apply(null, arr);
+    }
+
+    this.GetIndize = function (indizeId) {
+        return ko.utils.arrayFirst(this.Items, function (p) {
+            return p.IndizeId == indizeId;
+        });
+        return null;
+    }
+
+    this.UpdateIndize = function (data) {
+        var indize = this.GetIndize(data.IndizeId);
+        $.each(indize, function (name, value) {
+            indize[name] = data[name];
+        });
+    }
+
+    this.StoreIndize = function (data) {
+        this.Items.push(data)
+    }
+
+    this.DeleteIndize = function (entity) {
+        var data = this.GetIndize(entity.IndizeId());
+        this.Items.splice($.inArray(data, this.Items), 1);
+        setTimeout(function () { entity.onDeleted("ok", "deleted") }, 100);
+    }
+
+};
+
+IndizeDB.prototype = new DBEntity();
+// instantiated at IndizeList
+//var IndizeDB = new IndizeDB();
+
+
+
+
+    // ---------------------------
+    //  Indize EXTENDS SLEntity
+    // ---------------------------
+
+    var Indize = function (data, gridViewModel) {
+        var self = this;
+        this.gridViewModel = gridViewModel; // the same as IndizeList.viewModel
+
+        this.IndizeId = ko.observable(data.IndizeId || 0)
+        this.Title = ko.observable(data.Title || "")
+
+        this.Actual = ko.observable(data.Actual || 0)
+        this.actualPrevious = data.Actual || 0
+        this.actualStatus = ko.computed(function () {
+            var delta = this.Actual() - this.actualPrevious;
+            this.actualPrevious = this.Actual();
+            return delta;
+        }, this);
+
+
+        this.Diff = ko.observable(data.Diff || 0)
+    
+        // we need instance properties, that will be used in method of base class
+        this.isNew = ko.observable(data.isNew || false);
+        this.rowDisplayMode = ko.observable(data.isNew ? "rowAdd" : Indize.DEFAULTS.rowDisplayMode);
+    }
+
+    Indize.DEFAULTS = $.extend({}, SLEntity.DEFAULTS, {
+        placement: "right",
+        rowDisplayMode: "rowView"
+    })
+
+    Indize.prototype = new SLEntity();
+
+    Indize.prototype.entityName = "Indize";  // Indize
+    Indize.prototype.placement = "bottom";
+    Indize.prototype.templates = {};
+
+    Indize.prototype.getDefaults = function () {
+        return Indize.DEFAULTS
+    }
+
+    Indize.prototype.IndizeId = ko.observable(0)
+        .extend({
+            primaryKey: true,
+            //headerText: "Id",
+            formLabel: "Id",
+            width: "100px",
+            defaultValue: function () { return this.getNextId() }
+        });
+
+    Indize.prototype.Title = ko.observable("")
+        .extend({
+            headerText: "Title",
+            formLabel: "Title",
+            presentation: "bsPopoverLink", // view form
+            width: "200px",
+            defaultValue: "",
+            required: true,
+            minLength: 2,
+            pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }
+        });
+
+    Indize.prototype.Actual = ko.observable(0)
+        .extend({
+            headerText: "Actual",
+            formLabel: "Actual",
+            width: "auto", // one of the columns with take rest of row space
+            defaultValue: 0,
+            presentation: "bsMoney",
+            align : 'right'
+        });
+
+        Indize.prototype.actualStatus = ko.observable("")
+        .extend({
+            headerText: "",
+            formLabel: "",
+            width: "20px",
+            sortable: false,
+            defaultValue: "",
+            presentation: "bsArrowUpDown",
+            align: "center"
+        });
+
+
+        Indize.prototype.Diff = ko.observable(0)
+        .extend({
+            headerText: "Diff. (%)",
+            formLabel: "Diff. (%)",
+            width: "70px", // one of the columns with take rest of row space
+            defaultValue: 0,
+            //presentation: "bsMoney",
+            sortable:false,
+            align: 'right'
+        });
+
+    /*Indize.prototype.viewForm = ko.observable("")
+        .extend({
+        headerText: "View",
+        sortable: false,
+        width: "50px",
+        presentation: "bsPopoverLink"
+        });*/
+
+    
+    Indize.prototype.editRow = ko.observable("")
+        .extend({
+            headerText: "",  //"Edit"
+            sortable: false,
+            width: "30px",
+            presentation: "bsRowEditLink"
+        });
+
+    Indize.prototype.deleteRow = ko.observable("")
+        .extend({
+            headerText: "", // "Delete"
+            sortable: false,
+            width: "30px",
+            presentation: "bsRowDeleteLink"
+        });
+
+        /*
+        Indize.prototype.editDeleteRow = ko.observable("")
+        .extend({
+        headerText: "",
+        sortable: false,
+        width: "50px",
+        presentation: "bsRowEditLink"
+        });
+        */
+
+    /*
+    Indize.prototype.editForm = ko.observable("")
+        .extend({
+            headerText: "Edit",
+            sortable: false,
+            width: "50px",
+            presentation: "bsPopoverLink"
+        });
+
+    Indize.prototype.deleteForm = ko.observable("")
+        .extend({
+            headerText: "Delete",
+            sortable: false,
+            width: "50px",
+            presentation: "bsPopoverLink"
+        });
+    */
+
+  
+       
+
+
+/////////////////////////////////////
+//   IndizeList
+
+var IndizeList = (function (DB) {
+
+    var db = DB,
+        PageSize = 10,
+        Page = 1,
+        Filter = "",
+        OrderByColumn = "Title",
+        Asc = true;
+    // Initial data set
+
+    var listFilter = null;
+
+    var SetListFilter = function (lf) {
+        listFilter = lf;
+    }
+
+    var Subscribe = function (page, size) {
+        var query = {
+            filter: Filter || "",
+            page: page || Page,
+            pageSize: size || PageSize,
+            orderBy: OrderByColumn,
+            asc: Asc
+        };
+        db.Subscribe(query, PushInitialSet);
+    }
+
+    var PushInitialSet = function (set, maxPageIndex, nItems) {
+        ko.mapping.fromJS(set, {
+            key: function (indize) {
+                return ko.utils.unwrapObservable(indize.IndizeId);
+            },
+            create: function (options) {
+                return new Indize(options.data, gridViewModel);
+            }
+        }, gridViewModel.itemsAtPage);
+        gridViewModel.nItems(nItems);
+        gridViewModel.maxPageIndex(maxPageIndex);
+    }
+
+    var PushUpdates = function () {
+    }
+
+    var GetDB = function () {
+        return db;
+    }
+
+    var GetIndize = function (id) {
+        return db.GetIndize(id);
+    }
+
+    var StoreIndize = function (data) {
+        db.StoreIndize(data)
+    }
+
+    var UpdateIndize = function (data) {
+        db.UpdateIndize(data)
+    }
+
+    var DeleteIndize = function (indize) {
+        db.DeleteIndize(indize)
+    }
+
+    var GetNextId = function () {
+        return db.GetMaxId() + 1;
+    }
+
+    function GridViewModel() {
+        var self = this;
+
+        // call from SLGrid.init()
+        this.Subscribe = function (page, size) {
+            //if (page != undefined)
+            //    Page = page;
+            Subscribe(page, size);
+        }
+
+        this.SubscribeFilter = function (filter) {
+            if (filter != undefined) {
+                Filter = filter;
+            }
+
+            Subscribe();
+        }
+
+        //this.orderByColumn = function () { return OrderByColumn }
+        this.OrderBy = function (column, asc) {
+            OrderByColumn = column;
+            Asc = asc;
+            Subscribe();
+        }
+
+        this.getItem = function (id) {
+            return ko.utils.arrayFirst(ViewModel.itemsAtPage(), function (p) { // grep
+                return p.IndizeId() == id;
+            });
+        }
+
+        this.update = function (indize) {
+            UpdateIndize(indize);
+        }
+
+        this.store = function (indize) {
+            StoreIndize(indize);
+        }
+
+        this.remove = function (indize) {
+            DeleteIndize(indize);
+        }
+
+        this.onItemRemoved = function (indize) {
+            //indize.onRemove();
+            this.itemsAtPage.remove(indize);
+            if (indize.isNew)
+                this.isAdding(false);
+        }
+
+
+        this.whichTpl4Row = function (indize) {
+            //return indize.isRowEdit() ? "indize-row-edit-template" : "indize-row-template"
+            return indize.whichTpl4Row();
+        }
+
+
+        this.afterRender = function (elems, z) {
+            setTimeout(function () { db.pushChange() }, 1000)
+            $.each(elems, function (i, el) {
+            });
+            if (listFilter)
+                listFilter.initTypeahead();
+        }
+
+        this.afterRenderTR = function (elems, ent) {
+            $.each(elems, function (i, el) {
+                if (el.tagName == "TR") {
+                }
+            });
+        }
+
+        this.isAdding = ko.observable(false);
+
+        this.getNextId = function () {
+            return GetNextId();
+        }
+
+
+        this.canAdd = ko.computed(function () {
+            return this.itemsAtPage().length < PageSize + 1;
+        }, this)
+
+        this.add = function () {
+            var data = Indize.prototype.defaultData(this);
+            data = $.extend({}, data, { isNew: true }) // , isRowEdit: true
+            this.isAdding(true);
+            var indize = ko.mapping.fromJS(data, {
+                key: function (indize) {
+                    return ko.utils.unwrapObservable(indize.IndizeId);
+                },
+                create: function (options) {
+                    return new Indize(options.data, self); // self is gridViewModel
+                }
+            });
+            this.itemsAtPage.push(indize);
+        }
+
+    } // end of GridViewModel
+
+    GridViewModel.prototype = new SLGridViewModel({
+        listTpl: {
+            listHeader: "Indizes",
+            textAdd: "Add Indize",
+            textPager: "Indizes",
+            filterInputId: "filterIndizeList",
+            tableBordered: false,
+            hasFilter : false
+        },
+        orderByColumn: OrderByColumn,
+        columns: Indize.prototype.getGridColumns(OrderByColumn)
+    })
+
+    var gridViewModel = new GridViewModel();
+
+    return {
+        viewModel: gridViewModel,
+        setListFilter: SetListFilter,
+        indizeDB: db
+    }
+
+})(new IndizeDB());
+
+
+//IndizeList.setListFilter(new IndizeListFilter(IndizeList));
+
+(function () {
+    var templateEngine = new ko.nativeTemplateEngine();
+    templateEngine.addTemplate = function (templateName, templateMarkup) {
+        document.write("<script type='text/html' id='" + templateName + "'>" + templateMarkup + "<" + "/script>");
+    };
+    Indize.prototype.generateTemplates(templateEngine);
 })();
 
 

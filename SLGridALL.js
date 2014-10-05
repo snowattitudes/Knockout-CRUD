@@ -235,7 +235,6 @@ ko.bindingHandlers.bsRowDeleteLink = {
                     </a>")
                         .appendTo(element)
                         .on("click", function (e) {
-                            Trace("click");
                             if (bindingContext.$data.actionsEnabled()) {
                                 bindingContext.$data.remove();
                             }
@@ -323,19 +322,19 @@ ko.bindingHandlers.bsPopoverLink = {
                             trigger: "manual"
                         })
                         .on("shown.bs.popover", function (e, c, d) {
-                            Trace("shown.bs.popover");
+                            //Trace("shown.bs.popover");
                             $(this).addClass('popoverShown');
                         })
                         .on("hide.bs.popover", function () {
-                            Trace("hide.bs.popover");
+                            //Trace("hide.bs.popover");
                             ko.cleanNode($(this).data('bs.popover').tip()[0]);
                         })
                         .on("hidden.bs.popover", function () {
-                            Trace("hidden.bs.popover");
+                            //Trace("hidden.bs.popover");
                             $(this).removeClass('popoverShown');
                         })
                         .on("click", function (e) {
-                            Trace("click");
+                            //Trace("click");
                             if (bindingContext.$data.actionsEnabled()) {
                                 var wasOpened = $(this).hasClass("popoverShown");
                                 $('.edit-entity.popoverShown').popover('hide');

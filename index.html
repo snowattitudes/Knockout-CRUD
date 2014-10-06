@@ -919,7 +919,7 @@ IndizeDB.prototype = new DBEntity();
                 $li = $(this).parent();
                 $('#' + $li.attr('id') + 'Panel').slideDown('slow');
                 $li.addClass('active');
-            });
+            }); 
 
             $('.nav-sidebar > li.active > a').trigger('click');
         });
@@ -932,6 +932,13 @@ IndizeDB.prototype = new DBEntity();
 
         $(document).ready(function () {
             ko.applyBindings(globalViewModel);
+        });
+
+
+        $(document).on('click', function (e) {
+            if ($(e.target).closest(".popover").length == 0) { // click out of the popover 
+                $(".popoverShown").popover("hide"); // hide all
+            }
         });
   
         ko.bindingHandlers.bsMoney = {

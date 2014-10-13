@@ -177,21 +177,30 @@
           <div class="table-responsive">
 
             <div id="OverviewPanel" class="entity-panel" style="display:none;">
+                <p>
+                <i><b>SLGrid</b></i> is free open source software, available under the MIT license.<br />
+                <i><b>SLGrid</b></i> also has professional support and maintenance packages that can be purchased 
+                <br />from the authors to provide assistance with questions you might have.
+                <br />Price for support of one developer per hour is 50$.
+                <A href="mailto:slavko.parezanin@gmail.com">ask for support</A>.
+                </p>
 
-                Core component is <i><b>SLGrid</b></i>, developed as jQuery Knockout Widget using custom bindings. <br />
-                It is jQuery client component that can be used in any web application framewrok. 
-                <br /><br />
+                <p>
+                    Core component is <i><b>SLGrid</b></i>, developed as jQuery Knockout Widget using custom bindings. <br />
+                    It is jQuery client component that can be used in any web application framewrok. 
+                    <br /><br />
                
-                SLGrid uses Knockout which does declarative bindings connecting parts of UI to data model.<br /> 
-                The same entity model (document) can be presented (bound) in many views like: 
-                <ul>
-                <li>Row view</li>
-                <li>Row edit view</li>
-                <li>Form view</li>
-                <li>Form edit view</li>
-                <li>...</li>
-                </ul>
-                
+                    SLGrid uses Knockout which does declarative bindings connecting parts of UI to data model.<br /> 
+                    The same entity model (document) can be presented (bound) in many views like: 
+                    <ul>
+                    <li>Row view</li>
+                    <li>Row edit view</li>
+                    <li>Form view</li>
+                    <li>Form edit view</li>
+                    <li>...</li>
+                    </ul>
+                </p>
+
                 <br />
                 Here is the sample of the usage of SLGrid component.<br />
                 We can see advantages of Knockout widgets used in cells of SLGrid.
@@ -490,31 +499,35 @@ IndizeDB.prototype = new DBEntity();
 
 <b><i>Knockout widget: bsMoney</i></b>
 <pre><code class="javascript">
-    ko.bindingHandlers.bsMoney = {
-        update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-            var value = ko.utils.unwrapObservable(valueAccessor())
-            var mode = viewModel.rowDisplayMode()
-            var inRow = allBindings.get("inRow");
-            var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+ko.bindingHandlers.bsMoney = {
 
-            if (isViewMode) {
-                var tokens = value.toFixed(2).replace('-', '').split('.');
-                var s = '$' + $.map(tokens[0].split('').reverse(), function (elm, i) {
-                    return [(i % 3 === 0 && i &gt; 0 ? ',' : ''), elm];
-                }).reverse().join('') + '.' + tokens[1];
-                var markup = value &lt; 0 ? '-' + s : s;
-                $(element).html(markup)
-            }
-            else {
-                if ($(element).find('input').length == 0) {
-                    var colName = $(element).data("field");
-                    $(element).html("&lt;input style='text-align:right' class='form-control' 
-                                data-field='" + colName + "' 
-                                data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\"&gt;")
-                }
-            }
+    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var mode = viewModel.rowDisplayMode()
+        var inRow = allBindings.get("inRow");
+        var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+
+        if (!isViewMode) {
+            var colName = $(element).data("field");
+            $(element).html("&lt;input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\"&gt;")
+        }
+    },
+
+    update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var value = ko.utils.unwrapObservable(valueAccessor())
+        var mode = viewModel.rowDisplayMode()
+        var inRow = allBindings.get("inRow");
+        var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+
+        if (isViewMode) {
+            var tokens = value.toFixed(2).replace('-', '').split('.');
+            var s = '$' + $.map(tokens[0].split('').reverse(), function (elm, i) {
+                return [(i % 3 === 0 && i > 0 ? ',' : ''), elm];
+            }).reverse().join('') + '.' + tokens[1];
+            var markup = value < 0 ? '-' + s : s;
+            $(element).html(markup)
         }
     }
+}
 
     </code></pre>
 
@@ -948,12 +961,23 @@ IndizeDB.prototype = new DBEntity();
         });
   
         ko.bindingHandlers.bsMoney = {
+
+            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var mode = viewModel.rowDisplayMode()
+                var inRow = allBindings.get("inRow");
+                var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+
+                if (!isViewMode) {
+                    var colName = $(element).data("field");
+                    $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
+                }
+            },
+
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var value = ko.utils.unwrapObservable(valueAccessor())
                 var mode = viewModel.rowDisplayMode()
                 var inRow = allBindings.get("inRow");
                 var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
-
 
                 if (isViewMode) {
                     var tokens = value.toFixed(2).replace('-', '').split('.');
@@ -962,12 +986,6 @@ IndizeDB.prototype = new DBEntity();
                     }).reverse().join('') + '.' + tokens[1];
                     var markup = value < 0 ? '-' + s : s;
                     $(element).html(markup)
-                }
-                else {
-                    if ($(element).find('input').length == 0) {
-                        var colName = $(element).data("field");
-                        $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
-                    }
                 }
             }
         }

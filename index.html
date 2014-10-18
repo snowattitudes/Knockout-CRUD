@@ -35,13 +35,6 @@
         td { padding:10px;  vertical-align:text-top; }
     </style>
 
-    <style type="text/css">
-        tr.positive > td > span[data-field='Actual'] { color:rgb(40, 149, 0) }
-        tr.negative > td > span[data-field='Actual'] { color:rgb(209, 40, 40) }
-        tr.positive > td > span[data-field='Diff'] { color:rgb(40, 149, 0) }
-        tr.negative > td > span[data-field='Diff'] { color:rgb(209, 40, 40) }
-    </style>
-
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -181,8 +174,7 @@
                 <i><b>SLGrid</b></i> is free open source software, available under the MIT license.<br />
                 <i><b>SLGrid</b></i> also has professional support and maintenance packages that can be purchased 
                 <br />from the authors to provide assistance with questions you might have.
-                <br />Price for support of one developer per hour is 50$.
-                <A href="mailto:slavko.parezanin@gmail.com">ask for support</A>.
+                <a href="mailto:slavko.parezanin@gmail.com">ask for support</a>.
                 </p>
 
                 <p>
@@ -207,99 +199,88 @@
                 <br />
                 <br />
 
-                <div class="well" style="width:70%" >
-                    <div class="entity-list indizes-list" style="width:100%" 
-                            data-bind="template: { 
-                                        name: 'EntityListTemplate',
-                                        data : indizeList, 
-                                        afterRender: indizeList.afterRender }" >
-                    </div>
-                </div>
-
-                <br/>
-                <a href="http://jsfiddle.net/SlavkoPar/04pjL8Lh/" target="_blank">Try on JSFiddle</a>
-               <br/>
                 <br/>
 
                 <h2>Steps of usage of SLGrid</h2>
                 <br/>
-                <h4>1) Define classes Indize, IndizeList, IndizeDB (SLGen can generate classes from DB definition)</h4>
+                <h4>1) Define classes Person, PersonList, PersonDB (SLGen can generate classes from DB definition)</h4>
 
-    <b><i>Indize</i></b>
-    <pre><code class="javascript">
-     function Indize (data, gridViewModel) {
+<b><i>Person</i></b>
+<pre><code class="javascript">
+ var Person = function (data, gridViewModel) {
         var self = this;
-        this.gridViewModel = gridViewModel; // the same as IndizeList.viewModel
+        this.gridViewModel = gridViewModel; // the same as PersonList.viewModel
 
-        this.IndizeId = ko.observable(data.IndizeId || 0)
-        this.Title = ko.observable(data.Title || "")
+        this.PersonId = ko.observable(data.PersonId || 0)
+        this.Name = ko.observable(data.Name || "")
 
-        this.Actual = ko.observable(data.Actual || 0)
-        this.actualPrevious = data.Actual || 0
-        this.actualStatus = ko.computed(function () {
-            var delta = this.Actual() - this.actualPrevious;
-            this.actualPrevious = this.Actual();
-            return delta;
+        this.IsOnTwitter = ko.observable(data.IsOnTwitter : false)
+        this.TwitterName = ko.observable(data.TwitterName || "")
+
+        this.CityId = ko.observable(data.CityId || 11)
+        this.chosenCity = ko.computed(function () {
+            return CityList.getCity(this.CityId()) // from DB, rather than itemsAtPage
         }, this);
 
-        this.Diff = ko.observable(data.Diff || 0)
+        // Instance properties, methods in base class SLEntity use these properties 
+        this.isNew = ko.observable(data.isNew || false);
+        this.rowDisplayMode = ko.observable(Person.DEFAULTS.rowDisplayMode);
     }
 
-    Indize.prototype = new SLEntity();
+    Person.prototype = new SLEntity();
 
-    Indize.prototype.IndizeId = ko.observable(0)
+    Person.prototype.PersonId = ko.observable(0)
         .extend({
             primaryKey: true,
+            //headerText: "Id",
+            formLabel: "Id",
             width: "100px",
             defaultValue: function () { return this.getNextId() }
         });
 
-    Indize.prototype.Title = ko.observable("")
+    Person.prototype.Name = ko.observable("")
         .extend({
-            headerText: "Title",
-            formLabel: "Title",
-            presentation: "bsPopoverLink", // view form
+            headerText: "Name",
+            formLabel: "Name",
+            presentation: "bsPopoverLink", // form in bootstrap popover
             width: "200px",
             defaultValue: "",
             required: true,
-            minLength: 20,
+            minLength: 2,
             pattern: { message: 'Please, start with uppercase !', params: '^([A-Z])+' }
         });
 
-    Indize.prototype.Actual = ko.observable(0)
+    Person.prototype.IsOnTwitter = ko.observable(false)
         .extend({
-            headerText: "Actual",
-            formLabel: "Actual",
+            formLabel: "On Twitter",
+            defaultValue: false
+        });
+
+    Person.prototype.TwitterName = ko.observable("")
+        .extend({
+            headerText: "Twitter",
+            formLabel: "Twitter name",
             width: "auto", // one of the columns with take rest of row space
-            defaultValue: 0,
-            presentation: "bsMoney",
-            align : 'right'
+            defaultValue: ""
         });
 
-    Indize.prototype.actualStatus = ko.observable("")
+
+    Person.prototype.CityId = ko.observable(0)
         .extend({
-            headerText: "",
-            formLabel: "",
-            width: "20px",
-            sortable: false,
-            defaultValue: "",
-            presentation: "bsArrowUpDown",
-            align: "center"
+            defaultValue: 101
         });
 
-    Indize.prototype.Diff = ko.observable(0)
+    Person.prototype.chosenCity = ko.observable()
         .extend({
-            headerText: "Diff. (%)",
-            formLabel: "Diff. (%)",
-            width: "70px", // one of the columns with take rest of row space
-            defaultValue: 0,
-            //presentation: "bsMoney",
+            headerText: "City",
+            formLabel: "City",
+            width: "200px",
             sortable:false,
-            align: 'right'
+            presentation: "bsSelectCity"
+            //presentation: "bsTypeaheadCity"
         });
 
-    
-    Indize.prototype.editRow = ko.observable("")
+    Person.prototype.editRow = ko.observable("")
         .extend({
             headerText: "",  //"Edit"
             sortable: false,
@@ -307,24 +288,29 @@
             presentation: "bsRowEditLink"
         });
 
-    Indize.prototype.deleteRow = ko.observable("")
+    Person.prototype.deleteRow = ko.observable("")
         .extend({
             headerText: "", // "Delete"
             sortable: false,
             width: "30px",
             presentation: "bsRowDeleteLink"
         });
-
 </code></pre>
 
-<b><i>IndizeList</i></b>
+<b><i>PersonList</i></b>
 <pre><code class="javascript">
-var <big><b>IndizeList</b></big> = (function (DB) {
+function SLGridViewModel(configuration) {
+    this.itemsAtPage = ko.observableArray([]);
+    ...
+}
+
+var PersonList = (function (DB) {
+
     var db = DB,
-        PageSize = 10,
+        PageSize = 5,
         Page = 1,
         Filter = "",
-        OrderByColumn = "Title",
+        OrderByColumn = "Name",
         Asc = true;
 
     var Subscribe = function (page, size) {
@@ -340,161 +326,151 @@ var <big><b>IndizeList</b></big> = (function (DB) {
 
     var PushInitialSet = function (set, maxPageIndex, nItems) {
         ko.mapping.fromJS(set, {
-            key: function (indize) {
-                return ko.utils.unwrapObservable(indize.IndizeId);
+            key: function (person) {
+                return ko.utils.unwrapObservable(person.PersonId);
             },
             create: function (options) {
-                return new Indize(options.data, gridViewModel);
+                return new Person(options.data, gridViewModel);
             }
         }, gridViewModel.itemsAtPage);
         gridViewModel.nItems(nItems);
         gridViewModel.maxPageIndex(maxPageIndex);
     }
 
-    var PushUpdates = function () { }
-
-    var GetDB = function () { return db; }
-
-    var GetIndize = function (id) { return db.GetIndize(id); }
-    var StoreIndize = function (data) { db.StoreIndize(data) }
-    var UpdateIndize = function (data) { db.UpdateIndize(data) }
-    var DeleteIndize = function (indize) { db.DeleteIndize(indize) }
-
-    var GetNextId = function () { return db.GetMaxId() + 1; }
+    var GetPerson = function (id) { return db.GetPerson(id) }
+    var StorePerson = function (data) { db.StorePerson(data) }
+    var UpdatePerson = function (data) { db.UpdatePerson(data)}
+    var DeletePerson = function (person) { db.DeletePerson(person) }
+    var GetNextId = function () { return db.GetMaxId() + 1;}
 
     function GridViewModel() {
         var self = this;
 
+        // call from SLGrid.init()
         this.Subscribe = function (page, size) {
             Subscribe(page, size);
         }
 
         this.getItem = function (id) {
             return ko.utils.arrayFirst(ViewModel.itemsAtPage(), function (p) { // grep
-                return p.IndizeId() == id;
+                return p.PersonId() == id;
             });
         }
 
-        this.update = function (indize) {  UpdateIndize(indize); }
-        this.store = function (indize) {   StoreIndize(indize);  }
-        this.remove = function (indize) {  DeleteIndize(indize); }
-
-        this.afterRender = function (elems, z) {
-            setTimeout(function () { db.pushChange() }, 1000)
-        }
-
-        this.afterRenderTR = function (elems, ent) { }
+        this.update = function (person) { UpdatePerson(person); }
+        this.store = function (person) { StorePerson(person); }
+        this.remove = function (person) { DeletePerson(person); }
 
         this.canAdd = ko.computed(function () {
             return this.itemsAtPage().length < PageSize + 1;
         }, this)
 
         this.add = function () {
-            var data = Indize.prototype.defaultData(this);
+            var data = Person.prototype.defaultData(this);
             data = $.extend({}, data, { isNew: true }) // , isRowEdit: true
             this.isAdding(true);
-            var indize = ko.mapping.fromJS(data, {
-                key: function (indize) {
-                    return ko.utils.unwrapObservable(indize.IndizeId);
+            var person = ko.mapping.fromJS(data, {
+                key: function (person) {
+                    return ko.utils.unwrapObservable(person.PersonId);
                 },
                 create: function (options) {
-                    return new Indize(options.data, self); // self is gridViewModel
+                    return new Person(options.data, self); // self is gridViewModel
                 }
             });
-            this.itemsAtPage.push(indize);
+            this.itemsAtPage.push(person);
         }
 
     } // end of GridViewModel
 
     GridViewModel.prototype = new SLGridViewModel({
+        listTpl: {
+            listHeader: "People",
+            textAdd: "Add Person",
+            textPager: "People",
+            filterInputId: "filterPersonList",
+            tableBordered: true
+        },
         orderByColumn: OrderByColumn,
-        columns: Indize.prototype.getGridColumns(OrderByColumn)
+        columns: Person.prototype.getGridColumns(OrderByColumn)
     })
 
     var gridViewModel = new GridViewModel();
 
     return {
-        viewModel: gridViewModel,
-        indizeDB: db
+        viewModel: gridViewModel
     }
 
-})(new IndizeDB());
-
+})(new PersonDB());
 </code></pre>
 
-<b><i>IndizeDB</i></b>
+<b><i>PersonDB</i></b>
 <pre><code class="javascript">
-function IndizeDB() {
-    var self = this;
+function PersonDB() {
 
     this.Items = [
-            { IndizeId: 1, Title: "DAX", Actual: 9578.60, Diff: -0.31 },
-            { IndizeId: 2, Title: "TECDAX", Actual: 1229.06, Diff: 0.21 },
-            { IndizeId: 3, Title: "FTSE 100", Actual: 6662.10, Diff: -0.20},
-            { IndizeId: 4, Title: "CAC 40", Actual: 4368.68, Diff: 0},
-            { IndizeId: 5, Title: "Nasdaq 100", Actual: 4103.083, Diff: 0.72},
-            { IndizeId: 6, Title: "S&P 500", Actual: 2011.36, Diff: 0.49},
-            { IndizeId: 7, Title: "EuroStoxx 50", Actual: 3208.76, Diff: 0.08},
-            { IndizeId: 8, Title: "Nikkei 225", Actual: 16321.17, Diff: 1.58},
-            { IndizeId: 9, Title: "Hang Seng", Actual: 24377.05, Diff: 0.86},
-            { IndizeId: 10, Title: "ASX", Actual: 5437.30, Diff: 0.34 }
-        ];
+    { PersonId: 1, Name: "Claire", TwitterName: "O'Donnell", IsOnTwitter: true, CityId: 104 },
+    { PersonId: 2, Name: "Sven", TwitterName: "", IsOnTwitter: false, CityId: 101 },
+    { PersonId: 3, Name: "Svetlana", TwitterName: "Omelchenko", IsOnTwitter: true, CityId: 104 },
+    ...
+    ];
 
+    // override DBEntity.Subscribe
     this.Subscribe = function (query, callBack) {
-            this.ItemsFiltered = this.Items;
-            this.Start = (query.page - 1) * query.pageSize;
-            this.End = this.Start + query.pageSize;
-            this.MaxPageIndex = Math.ceil(this.ItemsFiltered.length / query.pageSize) - 1;
-            this.SortBy(query.orderBy, query.asc);
-            var set = this.ItemsFiltered.slice(this.Start, this.End);
-            callBack(set, this.MaxPageIndex, this.ItemsFiltered.length)
-    }
-
-    this.pushChange = function () {
-        var neg = Math.round(Math.random() * 1);
-        var percent = Math.random() * 10;
-        if (neg == 0)
-            percent = -percent;
-        var i = Math.floor(Math.random() * (IndizeList.viewModel.itemsAtPage().length));
-        var item = IndizeList.viewModel.itemsAtPage()[i];
-        var delta = (item.Actual() / 100) * percent;
-        item.Diff(percent.toFixed(1));
-        item.Actual(item.Actual() + delta); //(neg == 0 ? -delta : delta))
-        setTimeout(function () { self.pushChange() }, 100)
+        this.Start = (query.page - 1) * query.pageSize;
+        this.End = this.Start + query.pageSize;
+        $.ajax({
+                url: "/People/GetPeople",
+                data: { top: query.pageSize, 
+                        skip: this.Start, 
+                        filter: query.filter, 
+                        orderby: query.orderBy },
+                cache: false,
+                success: function (data) {
+                    that.MaxPageIndex = Math.ceil(data.nTotalItems / query.pageSize) - 1;
+                    callBack(data.items, this.MaxPageIndex, this.Items.length)
+                },
+                failure: function (response) {
+                    debugger
+                }
+            });
     }
 
     this.GetMaxId = function () {
-        var arr = this.Items.map(function (data, i) { return data.IndizeId; });
+        var arr = this.Items.map(function (data, i) {
+            return data.PersonId;
+        });
         return Math.max.apply(null, arr);
     }
 
-    this.GetIndize = function (indizeId) {
+    this.GetPerson = function (personId) {
         return ko.utils.arrayFirst(this.Items, function (p) {
-            return p.IndizeId == indizeId;
+            return p.PersonId == personId;
         });
         return null;
     }
 
-    this.UpdateIndize = function (data) {
-        var indize = this.GetIndize(data.IndizeId);
-        $.each(indize, function (name, value) {
-            indize[name] = data[name];
+    this.UpdatePerson = function (data) {
+        var person = this.GetPerson(data.PersonId);
+        $.each(person, function (name, value) {
+            person[name] = data[name];
         });
     }
 
-    this.StoreIndize = function (data) {
+    this.StorePerson = function (data) {
         this.Items.push(data)
     }
 
-    this.DeleteIndize = function (entity) {
-        var data = this.GetIndize(entity.IndizeId());
+    this.DeletePerson = function (entity) {
+        var data = this.GetPerson(entity.PersonId());
         this.Items.splice($.inArray(data, this.Items), 1);
         setTimeout(function () { entity.onDeleted("ok", "deleted") }, 100);
     }
 
 };
 
-IndizeDB.prototype = new DBEntity();
+PersonDB.prototype = new DBEntity();
+// instantiated at PersonList
+
 </code></pre>
 
 <b><i>Knockout widget: bsMoney</i></b>
@@ -508,7 +484,8 @@ ko.bindingHandlers.bsMoney = {
 
         if (!isViewMode) {
             var colName = $(element).data("field");
-            $(element).html("&lt;input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\"&gt;")
+            $(element).html("&lt;input style='text-align:right' class='form-control' data-field='" + 
+                colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\"&gt;")
         }
     },
 
@@ -535,7 +512,8 @@ ko.bindingHandlers.bsMoney = {
 <pre><code class="javascript">
         var globalViewModel = {
             ...
-            indizeList: IndizeList.viewModel
+            cityList: CityList.viewModel,
+            personList: PersonList.viewModel
         }
 
         $(document).ready(function () {
@@ -544,7 +522,7 @@ ko.bindingHandlers.bsMoney = {
 
 </code></pre>
 <br />
-<h4>3) Create Indize list template, or default <b><i>EntityListTemplate</i></b>  will be used </h4>
+<h4>3) Create PersonList template, or default <b><i>EntityListTemplate</i></b>  will be used </h4>
 <pre><code class="html"> 
 &lt; script type="text/html" id="EntityListTemplate"&gt;
         &lt;div style="float:left"&gt;
@@ -573,13 +551,12 @@ ko.bindingHandlers.bsMoney = {
     &lt;/script&gt;
 </code></pre>
 <br />
-<h4>4) Bind IndizeTemplate to IndizeList.viewModel  </h4>
+<h4>4) Bind PersonTemplate to PersonList.viewModel  </h4>
 <pre><code class="html"> 
-    &lt;div class="entity-list indizes-list" style="width:50%" 
-            data-bind="template: { 
-                        name: 'EntityListTemplate',
-                        data : indizeList, 
-                        afterRender: indizeList.afterRender }" &gt;
+    &lt;div data-bind="template: { 
+              name: 'EntityListTemplate',
+              data : personList, 
+              afterRender: personList.afterRender }" &gt;
     &lt;/div&gt;
 </code></pre>
 
@@ -946,49 +923,18 @@ ko.bindingHandlers.bsMoney = {
 
     <script type="text/javascript">
         var globalViewModel = {
-            indizeList: IndizeList.viewModel
         }
 
         $(document).ready(function () {
-            ko.applyBindings(globalViewModel);
+            //ko.applyBindings(globalViewModel);
         });
-
 
         $(document).on('click', function (e) {
             if ($(e.target).closest(".popover").length == 0) { // click out of the popover 
                 $(".popoverShown").popover("hide"); // hide all
             }
         });
-  
-        ko.bindingHandlers.bsMoney = {
 
-            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var mode = viewModel.rowDisplayMode()
-                var inRow = allBindings.get("inRow");
-                var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
-
-                if (!isViewMode) {
-                    var colName = $(element).data("field");
-                    $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
-                }
-            },
-
-            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var value = ko.utils.unwrapObservable(valueAccessor())
-                var mode = viewModel.rowDisplayMode()
-                var inRow = allBindings.get("inRow");
-                var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
-
-                if (isViewMode) {
-                    var tokens = value.toFixed(2).replace('-', '').split('.');
-                    var s = '$' + $.map(tokens[0].split('').reverse(), function (elm, i) {
-                        return [(i % 3 === 0 && i > 0 ? ',' : ''), elm];
-                    }).reverse().join('') + '.' + tokens[1];
-                    var markup = value < 0 ? '-' + s : s;
-                    $(element).html(markup)
-                }
-            }
-        }
     </script>
 
     <a title="Web Statistics" href="http://clicky.com/100779018"><img alt="Web Statistics" src="//static.getclicky.com/media/links/badge.gif" border="0" /></a>

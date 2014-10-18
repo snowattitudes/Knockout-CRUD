@@ -22,7 +22,9 @@
 
     <link href="Typeahead/Typeahead.css" rel="stylesheet" type="text/css" />
 
-    <link href="css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <!--<link href="css/font-awesome.css" rel="stylesheet" type="text/css" />-->
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet" type="text/css" />
+    
     <link href="css/SLGrid.css" rel="stylesheet" type="text/css" />
 
 <style type="text/css">
@@ -109,33 +111,50 @@
           </ul>
         </div>
 
+
+
+
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Admin Module</h1>
 
+         <h3>Features</h3>
           <div class="row placeholders">
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/80x80/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
+              <img data-src="holder.js/60x60/auto/sky/text:DB" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Any Database</h4>
+              <span class="text-muted">Adapater for each database</span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/80x80/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
+              <img data-src="holder.js/60x60/auto/vine/text:Web" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Any Web App Framework</h4>
+              <span class="text-muted">Like PHP, ASP.NET MVC, Java ...</span>
             </div>
             <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/80x80/auto/sky" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img data-src="holder.js/80x80/auto/vine" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
+              <img data-src="holder.js/60x60/auto/lava/text:Grid" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Grid</h4>
+              <span class="text-muted">Standard grid features: pagination, search, sort ...</span>
             </div>
           </div>
 
-          <h2 class="sub-header">Section</h2>
+          <div class="row placeholders">
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/60x60/auto/gray/text:Widgets" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Knockout Widgets</h4>
+              <span class="text-muted">Each grid cell can host Knockout widget (dropdown, typeahead, date picker, ...) for presentation of field value</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/60x60/auto/industrial/text:Templates" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>Templates</h4>
+              <span class="text-muted">SLGrid generates row and form templates. Form templates for Bootstrap popovers. You can provide you own templates.</span>
+            </div>
+            <div class="col-xs-6 col-sm-3 placeholder">
+              <img data-src="holder.js/60x60/auto/social/text:Relations" class="img-responsive" alt="Generic placeholder thumbnail">
+              <h4>UI for 1:N relations </h4>
+              <span class="text-muted">Each row has expanding panel presenting detail information or the children objects of the row</span>
+            </div>
+          </div>   
+
+          <h2 class="sub-header">People</h2>
           <div class="table-responsive">
   
             <div id="CitiesPanel" class="entity-panel" style="bbborder:1px solid #ddd;display:none;">
@@ -249,12 +268,23 @@
     <script type="text/javascript">
 
         ko.bindingHandlers.bsMoney = {
+
+            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var mode = viewModel.rowDisplayMode()
+                var inRow = allBindings.get("inRow");
+                var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
+
+                if (!isViewMode) {
+                    var colName = $(element).data("field");
+                    $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
+                }
+            },
+
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var value = ko.utils.unwrapObservable(valueAccessor())
                 var mode = viewModel.rowDisplayMode()
                 var inRow = allBindings.get("inRow");
                 var isViewMode = inRow && viewModel.isRowViewMode() || !inRow && viewModel.isViewMode()
-
 
                 if (isViewMode) {
                     var tokens = value.toFixed(2).replace('-', '').split('.');
@@ -263,12 +293,6 @@
                     }).reverse().join('') + '.' + tokens[1];
                     var markup = value < 0 ? '-' + s : s;
                     $(element).html(markup)
-                }
-                else {
-                    if ($(element).find('input').length == 0) {
-                        var colName = $(element).data("field");
-                        $(element).html("<input style='text-align:right' class='form-control' data-field='" + colName + "' data-bind=\"value: " + colName + "().toFixed(2), valueUpdate:'keyup'\">")
-                    }
                 }
             }
         }
